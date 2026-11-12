@@ -1,3 +1,7 @@
+Claude
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
 /* Layout idea: dark navy sidebar for navigation and reference material, light workspace with dense tables, one detail drawer, and a floating workflow guide. */
 :root{
   --bg:#f4f6fa;--surface:#ffffff;--surface2:#edf1f7;--ink:#121c2e;--muted:#5a6a82;--line:#dce3ee;
@@ -45,7 +50,7 @@ small,.muted{color:var(--muted)}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .hidden{display:none!important}
 .ico{flex:none}
-
+ 
 /* shell */
 .shell{display:grid;grid-template-columns:244px 1fr;min-height:100%}
 .side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;overflow:auto;padding:16px 12px;display:flex;flex-direction:column;gap:6px}
@@ -90,7 +95,7 @@ small,.muted{color:var(--muted)}
 main{padding:22px 24px 90px;max-width:1360px;width:100%}
 .pagehead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
 .pagehead p{color:var(--muted);margin-top:3px;max-width:70ch}
-
+ 
 /* buttons, pills */
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 14px;font-weight:550;display:inline-flex;align-items:center;gap:7px;transition:background .12s}
 .btn:hover{background:var(--surface2)}
@@ -107,7 +112,7 @@ main{padding:22px 24px 90px;max-width:1360px;width:100%}
 .pill.eligible,.pill.approved,.pill.info{background:var(--accent-soft);color:var(--accent)}
 .pill.pending{background:var(--surface2);color:var(--muted)}
 .role-chip{font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 7px;background:var(--accent-soft);color:var(--accent)}
-
+ 
 /* kpi + panels */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:16px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
@@ -127,7 +132,7 @@ main{padding:22px 24px 90px;max-width:1360px;width:100%}
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .search{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;min-width:230px}
 select.sel{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px}
-
+ 
 /* tables */
 .tw{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:auto;box-shadow:var(--shadow)}
 table.tbl{width:100%;border-collapse:collapse;font-size:14px}
@@ -153,7 +158,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px}
 .spark .l{stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linejoin:round}
 .spark .t{stroke:var(--warn);stroke-dasharray:2 2;stroke-width:1}
 .spark circle{fill:var(--accent)}.spark circle.f{fill:var(--warn)}.spark circle.c{fill:var(--crit)}
-
+ 
 /* kanban */
 .kan{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
 .col{background:var(--surface2);border-radius:14px;padding:10px;min-height:120px}
@@ -166,7 +171,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:14px}
 .mini .grow{flex:1;min-width:0}
 .mini .grow b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lockmsg{font-size:12px;color:var(--muted)}
-
+ 
 /* rows, bars, banners */
 .row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
@@ -198,7 +203,7 @@ button.rt{cursor:pointer}
 .log{max-height:320px;overflow:auto;font-size:13.5px}
 .log div{padding:6px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
 .log time{font:12px var(--f-mono);color:var(--muted);min-width:46px}
-
+ 
 /* drawer, modal, forms */
 .scrim{position:fixed;inset:0;background:rgba(6,14,28,.5);z-index:40;display:flex;justify-content:flex-end}
 .scrim.center{justify-content:center;align-items:center;padding:16px}
@@ -236,7 +241,7 @@ button.rt{cursor:pointer}
 .chart .area{fill:var(--accent);opacity:.12}
 .chart .dot{fill:var(--surface);stroke:var(--accent);stroke-width:2}
 .chart .dot.f{stroke:var(--warn)}.chart .dot.c{stroke:var(--crit);fill:var(--crit)}
-
+ 
 /* login */
 .login{min-height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
 .login .l{background:var(--side);color:#fff;padding:48px 44px;display:flex;flex-direction:column;gap:18px;justify-content:center}
@@ -250,7 +255,7 @@ button.rt{cursor:pointer}
 .steps4{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .steps4 div{display:flex;gap:12px;align-items:center;color:var(--side-ink);font-size:14px}
 .steps4 i{font:600 12px var(--f-mono);font-style:normal;background:var(--side-act);color:#fff;border-radius:7px;width:26px;height:26px;display:grid;place-items:center}
-
+ 
 /* workflow guide + dock */
 .gl{display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start}
 .fl{display:flex;flex-direction:column;gap:8px}
@@ -271,7 +276,7 @@ button.rt{cursor:pointer}
 .dock header button{border:0;background:rgba(255,255,255,.2);color:inherit;border-radius:7px;padding:2px 8px}
 .dock .bd{padding:6px 12px 12px;max-height:46vh;overflow:auto}
 .dock .stp{padding:8px 0;font-size:13.5px}
-
+ 
 .drawer-open .dock{right:auto;left:260px}
 @media (max-width:980px){.drawer-open .dock{display:none}}
 /* reference pages */
@@ -299,7 +304,7 @@ table.t td.c,table.t th.c{text-align:center}
 .toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(560px,calc(100% - 32px));pointer-events:none}
 .toast{background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);width:100%}
 .toast.warn{background:var(--warn);color:#fff}.toast.crit{background:var(--crit);color:#fff}
-
+ 
 @media (max-width:980px){
   .shell{grid-template-columns:1fr}
   .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px}
@@ -311,7 +316,7 @@ table.t td.c,table.t th.c{text-align:center}
   .top{padding:10px 16px}main{padding:16px 16px 90px}.gs input{width:100%}.gs{flex:1;min-width:180px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-
+ 
 /* demo / prototype labelling */
 .notice{background:#fff7e0;border-bottom:1px solid #f0d58a;color:#6b4e00;font-size:12.5px;padding:6px 18px}
 .simchip{background:#fff1cc;color:#6b4e00;border:1px solid #f0d58a;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap}
@@ -320,6 +325,195 @@ table.t td.c,table.t th.c{text-align:center}
 .simtag{display:inline-block;margin:10px 0 0;background:#fff1cc;color:#6b4e00;border:1px solid #f0d58a;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600}
 .assume{margin-top:18px;padding:10px 12px;border:1px dashed currentColor;border-radius:8px;font-size:12.5px;opacity:.9}
 .assume b{display:block;margin-bottom:3px}
+ 
+ 
+/* ===== Orange / black 3D theme (visual layer only; no logic changes) ===== */
+:root:root:root:root{
+  --bg:#09090b;--surface:#18181c;--surface2:#212127;--ink:#f6efe7;--muted:#a29a90;--line:#32323a;
+  --accent:#ff7a1a;--accent-soft:rgba(255,122,26,.17);--accent-ink:#1a0a00;
+  --side:#050506;--side-ink:#bcb2a6;--side-act:#23190f;
+  --ok:#3ddc84;--ok-soft:rgba(61,220,132,.14);--warn:#ffc233;--warn-soft:rgba(255,194,51,.14);--crit:#ff5252;--crit-soft:rgba(255,82,82,.17);
+  --shadow:0 1px 0 rgba(255,255,255,.07) inset,0 -1px 0 rgba(0,0,0,.7) inset,0 3px 0 #060607,0 14px 26px -10px rgba(0,0,0,.9);
+  --f-display:'Space Grotesk','Instrument Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+body{background:
+  radial-gradient(900px 520px at 85% -8%,rgba(255,122,26,.16),transparent 62%),
+  radial-gradient(700px 480px at -8% 108%,rgba(255,90,0,.09),transparent 60%),
+  linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px) 0 0/44px 44px,
+  linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px) 0 0/44px 44px,
+  #09090b;background-attachment:fixed}
+h1,h2,h3{font-weight:700;letter-spacing:-.02em}
+h1,h2{text-shadow:0 2px 0 rgba(0,0,0,.6)}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#0c0c0e}::-webkit-scrollbar-thumb{background:#3a3a42;border-radius:8px;border:2px solid #0c0c0e}
+::selection{background:var(--accent);color:#1a0a00}
+ 
+/* raised surfaces */
+.panel,.kpi,.col,.pop,.fcard,.role,.wf,.dock,.modal,.drawer,.login .r{
+  background:linear-gradient(180deg,#202025 0%,#161619 100%);
+  border:1px solid #34343c;
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 -1px 0 rgba(0,0,0,.65) inset,0 3px 0 #060607,0 16px 28px -12px rgba(0,0,0,.95)}
+.col{background:linear-gradient(180deg,#141417,#0f0f12);box-shadow:0 2px 6px rgba(0,0,0,.7) inset,0 1px 0 rgba(255,255,255,.05)}
+.drawer{border-radius:0;border-width:0 0 0 1px;background:linear-gradient(180deg,#131316,#0c0c0e)}
+.login .r{background:transparent;border:0;box-shadow:none}
+.panel{border-radius:16px}
+.kpi{position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s}
+.kpi::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent)}
+.kpi.crit::before{background:linear-gradient(90deg,var(--crit),transparent)}.kpi.ok::before{background:linear-gradient(90deg,var(--ok),transparent)}.kpi.warn::before{background:linear-gradient(90deg,var(--warn),transparent)}
+.kpi .n{text-shadow:0 0 18px currentColor,0 3px 0 rgba(0,0,0,.6)}
+.kpi:hover{transform:perspective(800px) translateY(-4px) rotateX(4deg);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 5px 0 #060607,0 24px 34px -12px rgba(0,0,0,1),0 0 0 1px rgba(255,122,26,.35)}
+ 
+/* sidebar */
+.side{background:linear-gradient(180deg,#0d0d0f,#040405);border-right:1px solid #26262c;box-shadow:6px 0 28px rgba(0,0,0,.7)}
+.logo{background:linear-gradient(145deg,#ffa24d,#f26200);box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 -3px 0 rgba(120,40,0,.55) inset,0 4px 0 #a14000,0 10px 18px rgba(255,106,0,.4);color:#1a0a00}
+.brand{text-shadow:0 2px 0 #000}
+.navsec{color:#7e7468}
+.ni{transition:transform .12s,background .12s}
+.ni:hover{background:#1b1b1f;transform:translateX(3px)}
+.ni[aria-current="page"]{background:linear-gradient(180deg,#ff8a2e,#ee6200);color:#1a0a00;font-weight:650;box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 3px 0 #9b3d00,0 10px 18px -6px rgba(255,106,0,.55)}
+.ni[aria-current="page"] .ico{color:#1a0a00}
+.ni[aria-current="page"] .badge{background:#1a0a00;color:var(--accent)}
+.rolecard{background:linear-gradient(180deg,#1d1914,#120f0c);border:1px solid #3a2a1c;box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 3px 0 #040404,0 12px 20px -8px #000}
+.rolecard select{background:#0b0b0d;border:1px solid #3a3a42;box-shadow:0 2px 5px rgba(0,0,0,.7) inset}
+.avatar{background:linear-gradient(145deg,#ffa24d,#f26200);color:#1a0a00;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 3px 0 #9b3d00,0 6px 10px rgba(0,0,0,.5)}
+ 
+/* top bar */
+.top{background:rgba(12,12,14,.82);backdrop-filter:blur(14px) saturate(140%);border-bottom:1px solid #2a2a30;box-shadow:0 10px 24px -10px rgba(0,0,0,.9)}
+.gs input,.field input,.field select,.field textarea,.search,select.sel{background:#0b0b0d;border:1px solid #34343c;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.75) inset}
+.gs input:focus,.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.75) inset,0 0 0 3px rgba(255,122,26,.25)}
+option{background:#121215;color:var(--ink)}
+.chip{background:linear-gradient(180deg,#26262c,#1b1b20);border:1px solid #34343c;box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 2px 0 #060607}
+.iconbtn{background:linear-gradient(180deg,#26262c,#1a1a1e);border-color:#3a3a42;box-shadow:0 1px 0 rgba(255,255,255,.09) inset,0 3px 0 #060607}
+.iconbtn:hover{background:linear-gradient(180deg,#30303a,#202026);border-color:var(--accent)}
+.pop,.gsr{background:#141417;border-color:#3a3a42;box-shadow:0 24px 50px rgba(0,0,0,.9)}
+ 
+/* buttons: physical keys */
+.btn{background:linear-gradient(180deg,#2c2c33,#1c1c21);border:1px solid #3d3d46;color:var(--ink);box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 3px 0 #08080a,0 8px 12px -4px rgba(0,0,0,.8);transition:transform .08s,box-shadow .08s,filter .12s;position:relative}
+.btn:hover{background:linear-gradient(180deg,#363640,#22222a);border-color:#ff7a1a66}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 0 0 #08080a,0 2px 4px rgba(0,0,0,.8)}
+.btn.pri{background:linear-gradient(180deg,#ff9a40,#f06000);border-color:#ffb375;color:#1a0a00;font-weight:700;text-shadow:0 1px 0 rgba(255,255,255,.35);box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 3px 0 #9b3d00,0 10px 20px -4px rgba(255,106,0,.5)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.pri:active{box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 0 0 #9b3d00,0 3px 8px rgba(255,106,0,.4)}
+.btn.dng{background:linear-gradient(180deg,#ff6b6b,#d92b2b);border-color:#ff9a9a;color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 3px 0 #7d1414,0 10px 18px -4px rgba(255,60,60,.4)}
+.btn.ghost{background:none;box-shadow:none;border-color:transparent}
+.btn[disabled]{box-shadow:none;transform:none;opacity:.4}
+.seg{background:#0e0e11;border-color:#34343c;box-shadow:0 2px 6px rgba(0,0,0,.7) inset}
+.seg button{border-right-color:#2a2a30;color:#a29a90}
+.seg button[aria-pressed="true"]{background:linear-gradient(180deg,#ff8a2e,#ee6200);color:#1a0a00;font-weight:650;box-shadow:0 1px 0 rgba(255,255,255,.4) inset}
+.pill{box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 2px 0 rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.06)}
+.badge{background:linear-gradient(180deg,#ff9a40,#f06000);color:#1a0a00;box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 2px 0 #9b3d00}
+.badge.red{background:linear-gradient(180deg,#ff6b6b,#d92b2b);color:#fff;box-shadow:0 2px 0 #7d1414}
+.badge.soft{background:#26262c;color:var(--muted);box-shadow:none}
+ 
+/* tables and rows */
+.tbl th,table.t th{background:#1c1c21;color:#b7ada1}
+.tbl td,table.t td,table.t th{border-color:#2a2a30}
+.tbl tbody tr{transition:background .12s,transform .12s}
+.tbl tbody tr:hover{background:linear-gradient(90deg,rgba(255,122,26,.13),transparent)}
+.room{background:linear-gradient(180deg,#2b2b32,#1c1c21);border:1px solid #3d3d46;box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 2px 0 #060607;color:var(--ink)}
+.temp{text-shadow:0 0 14px currentColor}
+.pip{border-color:#3d3d46;background:#0d0d10;box-shadow:0 2px 3px rgba(0,0,0,.8) inset}
+.pip.on{background:radial-gradient(circle at 35% 30%,#9dffc8,#2fcf78 55%,#15803f);border-color:#2fcf78;box-shadow:0 0 8px rgba(61,220,132,.7),0 2px 0 rgba(0,0,0,.5)}
+.task{background:#26262c}
+.mini{background:linear-gradient(180deg,#232329,#18181c);border-color:#34343c;box-shadow:0 1px 0 rgba(255,255,255,.07) inset,0 3px 0 #060607,0 10px 14px -8px #000;transition:transform .15s,box-shadow .15s,border-color .15s}
+.mini:hover{transform:perspective(600px) translateY(-3px) rotateX(3deg);border-color:var(--accent);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 5px 0 #060607,0 18px 22px -10px #000,0 0 0 1px rgba(255,122,26,.4)}
+.row{border-color:#2a2a30}
+.bar-track{background:#0d0d10;box-shadow:0 2px 4px rgba(0,0,0,.8) inset}
+.bar-fill{background:linear-gradient(180deg,#ffa24d,#f06000);box-shadow:0 0 10px rgba(255,122,26,.6)}
+.bar-fill.ok{background:linear-gradient(180deg,#6dffae,#25b867);box-shadow:0 0 10px rgba(61,220,132,.5)}
+.bar-fill.warn{background:linear-gradient(180deg,#ffd666,#e6a400)}
+.banner{border:1px solid rgba(255,255,255,.07);box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 3px 0 rgba(0,0,0,.6)}
+.fb{border:1px solid rgba(255,255,255,.07)}
+ 
+/* ward map keycaps */
+.rt{--k:#060607;border:1px solid #3d3d46;background:linear-gradient(180deg,#2a2a31,#1b1b20);box-shadow:0 1px 0 rgba(255,255,255,.12) inset,0 4px 0 var(--k),0 10px 12px -4px rgba(0,0,0,.85);transition:transform .12s,box-shadow .12s;color:var(--ink)}
+button.rt:hover{transform:translateY(-3px);box-shadow:0 1px 0 rgba(255,255,255,.15) inset,0 7px 0 var(--k),0 18px 18px -6px rgba(0,0,0,.9)}
+button.rt:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 1px 0 var(--k)}
+.rt.crit{--k:#7a1c1c;background:linear-gradient(180deg,#ff6a6a,#c52828);border-color:#ff9a9a;color:#fff}
+.rt.crit span{color:#ffd9d9}
+.rt.fever{--k:#8a6600;background:linear-gradient(180deg,#ffd45c,#e0a000);border-color:#ffe08a;color:#1a1200}
+.rt.fever span{color:#4a3600}
+.rt.ok{--k:#0e5a31;background:linear-gradient(180deg,#34c47a,#1d8d53);border-color:#6fe6a6;color:#04170d}
+.rt.ok span{color:#0b3d22}
+.rt.eligible,.rt.approved{--k:#9b3d00;background:linear-gradient(180deg,#ff9a40,#f06000);border-color:#ffc08a;color:#1a0a00}
+.rt.eligible span,.rt.approved span{color:#4a2000}
+.rt.free{border:1px dashed #4a4a54;background:#0e0e11;box-shadow:0 2px 6px rgba(0,0,0,.8) inset;color:var(--muted)}
+.rt.cleaning{border:1px dashed #6a5a40;background:repeating-linear-gradient(45deg,#1d1a14,#1d1a14 5px,#141210 5px,#141210 10px);box-shadow:0 2px 6px rgba(0,0,0,.8) inset}
+.rt span{color:var(--muted)}
+.lg-clean{background:#6a5a40}.lg-pending{background:#3d3d46}
+ 
+/* workflow strip */
+.wf>div{border-color:#2a2a30}
+.wf .done{background:linear-gradient(180deg,rgba(61,220,132,.2),rgba(61,220,132,.08))}
+.wf .now{background:linear-gradient(180deg,rgba(255,122,26,.3),rgba(255,122,26,.1))}
+.wf .lock{background:#101013}
+ 
+/* modals, dock, overlays */
+.scrim{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+.modal{border-radius:18px;border:1px solid #42424b;box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 6px 0 #060607,0 40px 80px rgba(0,0,0,.95),0 0 0 1px rgba(255,122,26,.15)}
+.dock{border-color:#ff7a1a99;box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 5px 0 #060607,0 24px 50px rgba(0,0,0,.95),0 0 40px rgba(255,122,26,.18)}
+.dock header{background:linear-gradient(180deg,#ff9a40,#ee6200);color:#1a0a00;box-shadow:0 -2px 0 rgba(120,40,0,.4) inset}
+.dock header button{background:rgba(0,0,0,.2)}
+.stp .n{background:#0d0d10;border-color:#3d3d46;box-shadow:0 2px 4px rgba(0,0,0,.8) inset}
+.stp.done .n{background:radial-gradient(circle at 35% 30%,#9dffc8,#2fcf78 60%,#15803f);border-color:#2fcf78;color:#04170d}
+.stp.cur .n{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(255,122,26,.6)}
+.stp,.dhead{border-color:#2a2a30}
+.xbtn{background:linear-gradient(180deg,#2c2c33,#1c1c21);border:1px solid #3d3d46;color:var(--ink);box-shadow:0 2px 0 #060607}
+.toast{background:linear-gradient(180deg,#2c2c33,#1b1b20);color:var(--ink);border:1px solid #4a4a54;box-shadow:0 4px 0 #060607,0 18px 30px rgba(0,0,0,.9)}
+.toast.warn{background:linear-gradient(180deg,#ffd45c,#e0a000);color:#1a1200}
+.toast.crit{background:linear-gradient(180deg,#ff6b6b,#d92b2b);color:#fff}
+.alert:hover{background:#202026}
+ 
+/* charts and diagrams */
+.chart .ln{filter:drop-shadow(0 0 6px rgba(255,122,26,.75))}
+.chart .area{opacity:.2}
+.chart .dot{fill:#09090b}
+.chart .grid{stroke:#2a2a30}
+.spark .l{filter:drop-shadow(0 0 4px rgba(255,122,26,.7))}
+.diag .lane{fill:#131316}
+.diag rect.bx{fill:#1d1d22;filter:drop-shadow(0 3px 0 #060607)}
+.diag text{fill:var(--ink)}
+.sel-row{background:linear-gradient(90deg,rgba(255,122,26,.18),transparent)}
+.tag{background:#26262c}
+ 
+/* sign-in screen with a 3D slab stack */
+.login{background:#09090b}
+.login .l{position:relative;overflow:hidden;background:
+  radial-gradient(700px 420px at 90% 105%,rgba(255,122,26,.28),transparent 60%),
+  linear-gradient(160deg,#121214,#050506);border-right:1px solid #2a2a30}
+.login .l>*{position:relative;z-index:1}
+.login .l::after{content:"";position:absolute;right:-70px;bottom:-30px;width:300px;height:300px;border-radius:26px;z-index:0;pointer-events:none;
+  background:linear-gradient(145deg,#ffb066,#f06000);
+  transform:perspective(900px) rotateX(58deg) rotateZ(-38deg);
+  box-shadow:1px 1px 0 #c24e00,2px 2px 0 #bb4a00,3px 3px 0 #b24500,4px 4px 0 #a94100,5px 5px 0 #a03d00,6px 6px 0 #973900,7px 7px 0 #8e3600,8px 8px 0 #853200,9px 9px 0 #7c2f00,10px 10px 0 #732b00,11px 11px 0 #6a2800,12px 12px 0 #612500,40px 52px 60px rgba(0,0,0,.8);opacity:.95}
+.login .l h1{background:linear-gradient(180deg,#fff,#ffcfa3);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.6))}
+.steps4 i{background:linear-gradient(180deg,#ff9a40,#f06000);color:#1a0a00;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 2px 0 #9b3d00}
+.role{background:linear-gradient(180deg,#222228,#17171b);border-color:#34343c;transition:transform .15s,box-shadow .15s,border-color .15s}
+.role:hover{transform:perspective(800px) translateY(-4px) rotateX(4deg);border-color:var(--accent);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 6px 0 #060607,0 22px 30px -10px #000,0 0 0 1px rgba(255,122,26,.4)}
+.fcard{transition:transform .15s,box-shadow .15s}
+.fcard:hover{transform:perspective(800px) translateY(-3px) rotateX(3deg)}
+.fcard[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 1px 0 rgba(255,255,255,.1) inset,0 4px 0 #9b3d00,0 16px 26px -10px rgba(255,106,0,.45)}
+ 
+/* prototype notices on dark */
+.notice{background:linear-gradient(180deg,rgba(255,122,26,.2),rgba(255,122,26,.09));border-bottom:1px solid rgba(255,122,26,.4);color:#ffc08a}
+.simchip,.simtag{background:rgba(255,122,26,.16);color:#ffb26b;border:1px solid rgba(255,122,26,.45);box-shadow:0 2px 0 rgba(0,0,0,.6)}
+.assume{border-color:rgba(255,122,26,.5);color:#ffcba3;background:rgba(255,122,26,.06)}
+.demotag{color:#ff9a40;opacity:1}
+.demonote{color:#a29a90}
+.login .r .fb.warn,.fb.warn{background:rgba(255,194,51,.12);color:#ffd36b}
+ 
+@media (prefers-reduced-motion:reduce){.kpi:hover,.mini:hover,.role:hover,.fcard:hover,button.rt:hover,.ni:hover{transform:none}}
+@media (max-width:980px){.login .l::after{width:200px;height:200px;right:-60px;bottom:-40px}.kpi:hover,.mini:hover,.role:hover{transform:none}}
+ 
+/* refinements */
+.login{min-height:100vh}
+.login .l::after{right:-130px;bottom:-110px;width:280px;height:280px}
+.gs input{width:190px}
+.top{gap:8px;padding:10px 20px}
+.rt.approved{--k:#2a1400;background:linear-gradient(180deg,#2a1c10,#170f08);border:2px solid #ff7a1a;color:#ffb26b;box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 4px 0 var(--k),0 0 16px rgba(255,122,26,.45),0 10px 12px -4px rgba(0,0,0,.85)}
+.rt.approved span{color:#d98a4a}
+.lg-approved{background:#170f08;border:2px solid #ff7a1a}
+@media (max-width:1560px){.simchip{display:none}}
 </style>
 </head>
 <body>
@@ -349,13 +543,13 @@ const PERMS = {
   recordTemp:['nurse'], visit:['doctor','head'], approve:['doctor','head'], death:['doctor','head'],
   discharge:['admin'], admit:['admin'], clean:['admin']
 };
-
+ 
 let S = null;           // application state
 const UI = {role:null, view:null, filter:'due', sort:'room', q:'', drawer:null, draft:{}, bell:false, auditF:'all', gf:'F1'};
 const GUIDE = {on:false, feat:null, done:new Set(), min:false};
 let onEmit = null;
 function emit(e){ GUIDE.done.add(e); if (onEmit) onEmit(e); }
-
+ 
 /* ---------- helpers ---------- */
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pad = n => String(n).padStart(2,'0');
@@ -365,7 +559,7 @@ const fmtDate = (d, o) => dateOf(d).toLocaleDateString('en-IN', o || {day:'numer
 const f1 = n => n.toFixed(1);
 const toF = c => c * 9 / 5 + 32;
 function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-
+ 
 /* ---------- seed data ---------- */
 function seedState(){
   const r = rng(11), pick = a => a[Math.floor(r() * a.length)];
@@ -421,7 +615,7 @@ function seedState(){
     {t:'08:02', m:'Waiting list has 6 patients; no rooms free', role:'system'}
   ]};
 }
-
+ 
 /* ---------- domain logic ---------- */
 const byId = id => S.patients.find(p => p.id === id);
 const live = p => p.status === 'active' || p.status === 'approved';
@@ -468,7 +662,7 @@ const dayIn = p => S.day - p.admitDay + 1;
 function logEvent(m, role){ const r = role || UI.role; S.log.unshift({t:nowTime(), day:S.day, m, role:r, user:USERS[r] ? USERS[r].name : 'System'}); S.log = S.log.slice(0, 200); }
 function allowed(action){ return PERMS[action].includes(UI.role); }
 const rate = () => { const d = S.closed.filter(c => c.outcome === 'deceased').length, n = S.closed.length; return {dead:d, cured:n - d, n, mort:n ? d / n : 0}; };
-
+ 
 /* temperature validation: returns level, message, and whether an explicit confirmation is needed */
 function checkTemp(p, raw, correcting){
   const v = parseFloat(String(raw).replace(',', '.'));
@@ -486,7 +680,7 @@ function checkTemp(p, raw, correcting){
   else if (prev !== null && Math.abs(t - prev) >= 2) { confirm = 'This differs from yesterday (' + f1(prev) + ' °C) by 2 °C or more. I confirm it is correct.'; }
   return {lvl, msg, confirm, t, after, block:false};
 }
-
+ 
 /* actions: each one enforces its own rules and returns {ok, msg} */
 function recordTemp(pid, t, opt){
   const p = byId(pid);
@@ -587,7 +781,7 @@ function advanceDay(){
   logEvent('New day started. Yesterday: ' + missed + ' missed temperatures (' + broken + ' fever-free streaks broken), ' + unvisited + ' patients without a visit', 'system');
   return {ok:true, msg:'Day advanced to ' + fmtDate(S.day, {weekday:'short', day:'numeric', month:'short'}) + '. Yesterday: ' + missed + ' missed temperatures, ' + broken + ' fever-free streaks broken.'};
 }
-
+ 
 /* Sprint planning (Q4): exhaustive search over all 2^10 subsets, so the answer is checked, not assumed */
 function sprintPlan(){
   const cap = 25 - 3 * 5;
@@ -604,8 +798,8 @@ function sprintPlan(){
   items.forEach((it, i) => it.pick = !!(best.m >> i & 1));
   return {cap, items, best};
 }
-
-
+ 
+ 
 /* ---------- derived data used by alerts, sparklines and SLA flags ---------- */
 /* Day on which the patient became eligible: the day after their 3rd full fever-free day ended. */
 function eligSince(p){ const sk = streakCalc(p, p.readings, S.day); return sk.count >= NEED ? S.day - (sk.count - NEED) : null; }
@@ -626,7 +820,7 @@ function alerts(){
   if (due) out.push({k:'info', t:due + ' temperature(s) still due today', d:'Nurses see these first in Rounds', view:'rounds'});
   return out;
 }
-
+ 
 /* =====================================================================
    UI layer
    ===================================================================== */
@@ -649,7 +843,7 @@ const REF = [['guide','Workflow guide','flow'],['screens','Screens and flows','l
 const REFV = REF.map(r => r[0]);
 const TITLES = {rounds:'Rounds', visits:'Visit queue', signoff:'Discharge sign-off', overview:'Overview', map:'Ward map', quality:'Quality', audit:'Audit log', guide:'Workflow guide', screens:'Screens and flows', strategy:'Strategy and priorities', spec:'Spec: Q1, Q3, Q4'};
 const ROLENAME = {nurse:'Nurse', doctor:'Doctor', head:'Head Doctor', admin:'Admin Staff'};
-
+ 
 /* ---------- small renderers ---------- */
 function toast(msg, kind){
   const el = document.createElement('div'); el.className = 'toast ' + (kind || ''); el.textContent = msg;
@@ -669,7 +863,7 @@ function spark(p){
 }
 const pagehead = (t, sub, right) => '<div class="pagehead"><div><h1>' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div><span class="spacer"></span>' + (right || '') + '</div>';
 const kpi = (cls, l, n, s) => '<div class="kpi ' + cls + '"><div class="l">' + l + '</div><div class="n">' + n + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div>';
-
+ 
 /* ---------- guided workflows (feature, steps, expected result, event that completes it) ---------- */
 const readyPatient = () => S.patients.find(p => p.status === 'active' && eligible(p) && todayTemp(p) === null);
 const FEATS = [
@@ -731,7 +925,7 @@ function renderDock(){
     (all ? '<div class="fb ok" style="margin-top:10px"><b>Workflow complete.</b> ' + f.metric + '</div><div class="actions" style="margin-top:6px">' + (nx ? '<button class="btn pri sm" data-act="startfeat" data-f="' + nx.id + '">Next: ' + nx.id + '</button>' : '') + '<button class="btn sm" data-act="startfeat" data-f="' + f.id + '">Replay</button></div>' : stepsHTML(f, true)) + '</div>') + '</div>';
 }
 onEmit = () => { if (typeof document !== 'undefined') renderDock(); };
-
+ 
 /* ---------- shell ---------- */
 function render(){
   const app = document.getElementById('app');
@@ -774,7 +968,7 @@ function render(){
 function bellHTML(al){
   return '<div class="pop" role="dialog" aria-label="Alerts"><h4>Alerts for ' + ROLENAME[UI.role] + '</h4>' + (al.length ? al.slice(0, 12).map((a, i) => '<button class="alert" data-act="alertgo" data-i="' + i + '"><span class="dot ' + a.k + '"></span><span><b>' + esc(a.t) + '</b><br><small>' + esc(a.d) + '</small></span></button>').join('') : '<div class="empty">Nothing needs attention.</div>') + '</div>';
 }
-
+ 
 /* ---------- login ---------- */
 function loginHTML(){
   const cards = [['nurse','Records the daily temperature and sees who is still due.'],['doctor','Sees only patients whose temperature is in. Logs visits and signs off discharges.'],['head','Everything a doctor does, plus quality, audit and benchmark tracking.'],['admin','Discharges cleared patients, frees rooms and admits from the waiting list.']];
@@ -785,7 +979,7 @@ function loginHTML(){
     '<section class="r"><h2>Choose a demo role</h2><p class="muted">There are no accounts or passwords. This picker only switches the view so reviewers can try each role. Real sign-in and server-side permissions would come with a backend.</p>' + cards.map(c => '<button class="role" data-act="login" data-r="' + c[0] + '"><span class="avatar">' + USERS[c[0]].letter + '</span><span><b>' + ROLENAME[c[0]] + ' · ' + esc(USERS[c[0]].name) + '</b><small>' + c[1] + '</small></span></button>').join('') +
     '<button class="btn pri" style="justify-content:center;margin-top:6px" data-act="explore">Explore with the reviewer guide</button><div class="fb warn">Changes you make are held in this browser tab only. They are not saved, not shared across devices, and reset when the page reloads.</div></section></div>';
 }
-
+ 
 /* ---------- views ---------- */
 function viewHTML(){
   switch (UI.view) {
@@ -810,9 +1004,9 @@ const assumeTable = () => '<div class="xs"><table class="t"><thead><tr><th>Param
 function assumptionsModal(){
   openModal('<h3>Clinical assumptions</h3><div class="fb warn">' + ASSUME_NOTE + '</div>' + assumeTable() + '<div class="actions"><button class="btn" data-act="closeModal">Close</button></div>');
 }
-
+ 
 const prioOf = p => { const t = todayTemp(p); return t === null ? 4 : t >= CRIT ? 0 : t >= FEVER ? 1 : eligible(p) ? 2 : 3; };
-
+ 
 function roundsHTML(){
   const list = S.patients.filter(p => p.status === 'active');
   const due = list.filter(p => todayTemp(p) === null), done = list.length - due.length, fev = list.filter(p => (todayTemp(p) || 0) >= FEVER).length;
@@ -831,7 +1025,7 @@ function nurseRow(p){
   return '<tr class="row' + st.k + '" data-open="' + p.id + '"><td><span class="room">R' + p.room + '</span></td><td class="nm"><b>' + esc(p.name) + '</b><small>' + p.age + p.sex + ' · Day ' + dayIn(p) + '</small></td><td>' + tempCell(p) + '</td><td>' + spark(p) + '</td><td>' + pips(streak(p)) + '</td><td>' + pill(st.k, st.label) + '</td><td class="num">' +
     (has ? '<button class="btn sm" data-act="temp" data-id="' + p.id + '" data-c="1">Correct</button>' : '<button class="btn pri sm" data-act="temp" data-id="' + p.id + '">Record</button>') + '</td></tr>';
 }
-
+ 
 function visitsHTML(){
   const list = S.patients.filter(p => p.status === 'active');
   const ready = list.filter(p => todayTemp(p) !== null && !visitToday(p)).sort((a, b) => prioOf(a) - prioOf(b) || a.room - b.room);
@@ -846,7 +1040,7 @@ function mini(p, mode){
   const st = pstate(p), t = todayTemp(p);
   return '<div class="mini ' + st.k + ' ' + (mode === 'locked' ? 'locked' : '') + '" data-open="' + p.id + '" tabindex="0"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b>' + (mode === 'locked' ? '<span class="lockmsg">Locked: temperature not recorded</span>' : '<span class="lockmsg">' + st.label + ' · ' + pips(streak(p)) + '</span>') + '</div>' + (t !== null ? '<span class="temp ' + tempClass(t) + '">' + f1(t) + '</span>' : '<span class="muted mono">--.-</span>') + '</div>';
 }
-
+ 
 function signoffHTML(){
   const ready = S.patients.filter(canApprove).sort((a, b) => eligSince(a) - eligSince(b) || a.room - b.room);
   const needRead = S.patients.filter(p => eligible(p) && !canApprove(p)).sort((a, b) => a.room - b.room);
@@ -860,7 +1054,7 @@ function signoffHTML(){
     '<section class="panel"><h3>Approved, with admin <span class="badge">' + ap.length + '</span></h3>' + (ap.length ? ap.map(p => row(p, 'Approved ' + (p.approvedDay === S.day ? 'today' : (S.day - p.approvedDay) + ' day(s) ago'), pill('approved', 'With admin'))).join('') : '<div class="empty">Nothing waiting on admin.</div>') + '</section>' +
     '<section class="panel"><h3>One full day away <span class="badge soft">' + near.length + '</span></h3><p class="muted" style="margin:-4px 0 6px">At 2 of ' + NEED + ' full days. Today counts once it ends fever-free. A missed reading breaks the count.</p>' + (near.length ? near.map(p => row(p, todayTemp(p) === null ? 'Temperature due today' : 'Recorded today, ' + f1(todayTemp(p)) + ' °C', pips(2))).join('') : '<div class="empty">Nobody at 2 of ' + NEED + ' right now.</div>') + '</section></div>';
 }
-
+ 
 function overviewHTML(){
   const occ = S.patients.filter(live).length, fr = freeRooms(), cl = cleaningRooms();
   const el = S.patients.filter(canApprove), ap = S.patients.filter(p => p.status === 'approved'), actv = S.patients.filter(p => p.status === 'active');
@@ -877,7 +1071,7 @@ function overviewHTML(){
     '<section class="panel"><h3>Today’s ward compliance</h3><div class="prog"><div class="t"><span>Temperatures recorded</span><b class="mono">' + tdone + ' / ' + actv.length + '</b></div><div class="bar-track"><div class="bar-fill ok" style="width:' + pt + '%"></div></div></div><div class="prog"><div class="t"><span>Doctor visits logged</span><b class="mono">' + vdone + ' / ' + actv.length + '</b></div><div class="bar-track"><div class="bar-fill ok" style="width:' + pv + '%"></div></div></div>' +
       '<h4 style="margin:4px 0 6px">Recent activity</h4><div class="log">' + S.log.slice(0, 10).map(l => '<div><time>' + l.t + '</time><span>' + esc(l.m) + '</span></div>').join('') + '</div></section></div>';
 }
-
+ 
 function qualityHTML(){
   const r = rate(), pct = r.mort * 100, ok = 100 - pct;
   const alert = r.n >= MIN_SAMPLE && r.mort > BENCH, near = !alert && r.mort >= BENCH - .02;
@@ -898,7 +1092,7 @@ function qualityHTML(){
     '<div class="grid2"><section class="panel"><h3>Cumulative mortality, last 14 days</h3>' + chart + '<p class="muted" style="margin-top:6px;font-size:13px">Alerts fire once at least ' + MIN_SAMPLE + ' cases are closed, so one early death does not trigger a false alarm.</p></section>' +
     '<section class="panel"><h3>How the numbers are worked out</h3><ul class="rules"><li>Mortality = deaths ÷ (deaths + cured discharges). Patients still in a room are not counted.</li><li>Success rate = 100% minus mortality.</li><li>Extra days = days between becoming eligible (the day after the 3rd full fever-free day ended) and the actual discharge. It exposes sign-off and admin delays.</li><li>The 15% benchmark and every clinical threshold are assumptions that need head doctor approval (see Assumptions).</li><li>Try it: as Doctor, record a death for any patient, then return here.</li></ul></section></div>';
 }
-
+ 
 function mapHTML(){
   const cnt = {}, tiles = [];
   for (let n = 1; n <= ROOMS; n++) {
@@ -911,14 +1105,14 @@ function mapHTML(){
   return pagehead('Ward map', 'All ' + ROOMS + ' rooms at a glance. Select a room to open the patient.') +
     '<p class="legend">' + lg.map(l => '<span><i class="lg-' + (l[0] === 'cleaning' ? 'clean' : l[0]) + '"></i>' + l[1] + ' <b class="mono">' + (cnt[l[0]] || 0) + '</b></span>').join('') + '<span><i style="border:1px dashed var(--muted)"></i>Free <b class="mono">' + (cnt.free || 0) + '</b></span></p><div class="map">' + tiles.join('') + '</div>';
 }
-
+ 
 function auditHTML(){
   const rows = S.log.filter(l => UI.auditF === 'all' || l.role === UI.auditF);
   return pagehead('Audit log', 'Every state change with who did it and when. Corrections keep the original value.') +
     '<div class="controls"><div class="seg" role="group" aria-label="Filter by role">' + [['all', 'All'], ['nurse', 'Nurse'], ['doctor', 'Doctor'], ['head', 'Head Doctor'], ['admin', 'Admin'], ['system', 'System']].map(f => '<button aria-pressed="' + (UI.auditF === f[0]) + '" data-act="auditf" data-f="' + f[0] + '">' + f[1] + '</button>').join('') + '</div></div>' +
     '<div class="tw"><table class="tbl"><thead><tr><th>When</th><th>User</th><th>Role</th><th>Event</th></tr></thead><tbody>' + (rows.length ? rows.slice(0, 80).map(l => '<tr style="cursor:default"><td class="mono">' + fmtDate(l.day || 0) + ' ' + l.t + '</td><td>' + esc(l.user || (USERS[l.role] ? USERS[l.role].name : 'System')) + '</td><td>' + (ROLENAME[l.role] || 'System') + '</td><td>' + esc(l.m) + '</td></tr>').join('') : '<tr><td colspan="4"><div class="empty">No events for this filter yet.</div></td></tr>') + '</tbody></table></div>';
 }
-
+ 
 /* ---------- workflow guide page ---------- */
 function guideHTML(){
   const f = feat(UI.gf) || FEATS[0], active = GUIDE.on && GUIDE.feat === f.id;
@@ -927,7 +1121,7 @@ function guideHTML(){
     '<section class="panel"><div class="ph"><h2>' + f.id + ' · ' + f.title + '</h2><span class="spacer"></span><button class="btn pri" data-act="startfeat" data-f="' + f.id + '">' + (active ? 'Restart guided run' : 'Start guided run') + '</button></div>' +
     '<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:8px"><div class="fb info" style="margin:0"><b>Problem it solves</b><br>' + f.problem + '</div><div class="fb ok" style="margin:0"><b>How we would know it works</b><br>' + f.metric + '</div></div>' + stepsHTML(f, false) + '</section></div>';
 }
-
+ 
 /* ---------- screens and flows page ---------- */
 function swimHTML(){
   const lanes = ['Nurse', 'System', 'Doctor', 'Admin', 'Head Doctor'], LH = 84, LX = 100, W = 1060, H = lanes.length * LH + 8, bw = 138, bh = 50;
@@ -963,7 +1157,7 @@ function screensHTML(){
     '<section class="panel"><h3>Patient status flow</h3><div class="xs">' + stateHTML() + '</div></section>' +
     '<section class="panel"><h3>Screen inventory</h3><div class="xs"><table class="t"><thead><tr><th></th><th>Screen</th><th>Role</th><th>Shows</th><th>States handled</th><th></th></tr></thead><tbody>' + S_.map(s => '<tr><td class="mono">' + s[0] + '</td><td><b>' + s[1] + '</b></td><td>' + s[2] + '</td><td>' + s[3] + '</td><td>' + s[4] + '</td><td>' + (s[5] === 'login' ? '<button class="btn sm" data-act="logout">Open</button>' : '<button class="btn sm" data-act="go" data-role="' + s[5].split('|')[0] + '" data-v="' + s[5].split('|')[1] + '">Open</button>') + '</td></tr>').join('') + '</tbody></table></div></section></div>';
 }
-
+ 
 /* ---------- strategy page (how I would prioritise as the product owner) ---------- */
 function strategyHTML(){
   const R = [
@@ -991,7 +1185,7 @@ function strategyHTML(){
     '<section class="panel"><h3>Rollout</h3><ul class="rules"><li><b>Week 0:</b> confirm definitions, load current patients, train one shift.</li><li><b>Week 1-2:</b> pilot on one ward with paper as backup. Track complete patient-days daily.</li><li><b>Week 3-4:</b> add alerts and audit. Review mortality and delay numbers with the head doctor.</li><li><b>Week 5+:</b> offline entry, then configuration, then other wards.</li></ul></section>' +
     '<section class="panel"><h3>What I would look for in a strong submission, and where this one shows it</h3><div class="xs"><table class="t"><thead><tr><th>Quality</th><th>What good looks like</th><th>Where to see it here</th></tr></thead><tbody>' + rubric.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table></div></section></div>';
 }
-
+ 
 /* ---------- spec page (Q1, Q3, Q4) ---------- */
 function specHTML(){
   const sp = sprintPlan(), F = '●', V = '○', N = '–';
@@ -1011,7 +1205,7 @@ function specHTML(){
     '<section class="panel"><h3>Q3. Rules enforced in this prototype</h3><div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">' + rules.map(g => '<div><h4>' + g[0] + '</h4><ul class="rules" style="margin-top:6px">' + g[1].map(x => '<li>' + x + '</li>').join('') + '</ul></div>').join('') + '</div></section>' +
     '<section class="panel"><h3>Q4. Sprint selection</h3><p class="muted" style="margin:-4px 0 8px">Capacity 25 minus 3 × 5 already planned = <b>' + sp.cap + ' points</b>. Value: Low 1, Medium 3, High 6. All 1,024 combinations were checked.</p><div class="xs"><table class="t"><thead><tr><th>Feature</th><th>Priority</th><th class="c">Effort</th><th class="c">Value</th><th class="c">Value per point</th><th class="c">Decision</th></tr></thead><tbody>' + sp.items.map(i => '<tr class="' + (i.pick ? 'sel-row' : '') + '"><td><b>' + i.n + '</b></td><td>' + i.p + '</td><td class="c mono">' + i.e + '</td><td class="c mono">' + i.v + '</td><td class="c mono">' + (i.v / i.e).toFixed(1) + '</td><td class="c">' + (i.pick ? 'Add' : 'Leave out') + '</td></tr>').join('') + '</tbody></table></div><p style="margin-top:10px"><b>Add ' + sp.items.filter(i => i.pick).map(i => i.n).join(', ') + '</b>: effort ' + sp.best.e.toFixed(1) + ' of ' + sp.cap + ', value ' + sp.best.v + '. Sprint total ' + (15 + sp.best.e).toFixed(1) + ' of 25.</p></section></div>';
 }
-
+ 
 /* ---------- patient drawer ---------- */
 function chartSVG(p){
   const days = [], from = Math.max(p.admitDay, S.day - 9); for (let d = from; d <= S.day; d++) days.push(d);
@@ -1054,7 +1248,7 @@ function drawerHTML(p){
     (actions ? '<div style="display:flex;flex-direction:column;gap:10px">' + actions + '</div>' : '') +
     '<div class="panel"><h3>Timeline</h3>' + (items.length ? items.map(i => i.k === 't' ? '<div class="tl-i ' + (i.r.voided ? 'void' : '') + '"><time>' + fmtDate(i.d) + ' ' + i.t + '</time><span><b class="mono">' + f1(i.r.temp) + ' °C</b> recorded by ' + esc(i.r.by) + (i.r.voided ? ' (voided: ' + esc(i.r.voidReason) + ')' : '') + '</span></div>' : '<div class="tl-i"><time>' + fmtDate(i.d) + ' ' + i.t + '</time><span><b>Visit</b> · ' + esc(i.v.by) + '<br>' + esc(i.v.treatment) + (i.v.note ? '. ' + esc(i.v.note) : '') + '</span></div>').join('') : '<div class="empty">Nothing recorded yet.</div>') + '</div>';
 }
-
+ 
 /* ---------- overlays ---------- */
 let MODAL = null;
 function renderOverlay(){
@@ -1127,7 +1321,7 @@ function admitModal(w){
 function demoModal(){
   openModal('<h3>Demo controls</h3><p class="muted">For reviewers only. These would not exist in production.</p><div class="field"><label>Move the clock</label><button class="btn" data-act="nextday">Start next day (' + fmtDate(S.day + 1, {weekday:'short', day:'numeric', month:'short'}) + ')</button><small>Resets today’s temperature and visit status, keeps history, and logs how many readings were missed.</small></div><div class="field"><label>Reset</label><button class="btn" data-act="reset">Reset all demo data</button></div><div class="actions"><button class="btn" data-act="closeModal">Close</button></div>');
 }
-
+ 
 /* ---------- events ---------- */
 function doAction(a, el){
   const id = el.dataset.id;
@@ -1191,9 +1385,11 @@ function initUI(){
     if (e.target.dataset && e.target.dataset.draftc) { UI.draft[e.target.dataset.draftc] = e.target.checked; renderOverlay(); }
   });
 }
-
+ 
 if (typeof window !== 'undefined' && typeof document !== 'undefined') { S = seedState(); initUI(); render(); }
 if (typeof module !== 'undefined') module.exports = {seedState, setS:s => { S = s; }, setRole:r => { UI.role = r; }, getS:() => S, recordTemp, logVisit, approveDischarge, recordDeath, dischargePatient, markClean, admit, advanceDay, sprintPlan, checkTemp, streak, streakCalc, eligible, canApprove, todayTemp, visitToday, rate, freeRooms, cleaningRooms, pstate, patientInRoom, byId, alerts, eligSince, GUIDE, FEATS, UI, viewHTML, NAVDEF, REF, loginHTML, assumeTable, ASSUME, ASSUME_NOTE};
 </script>
 </body>
 </html>
+ 
+Claude finished the response
