@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WardWatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: dark navy sidebar for navigation and reference material, light workspace with dense tables, one detail drawer, and a floating workflow guide. */
+:root{
+  --bg:#f4f6fa;--surface:#ffffff;--surface2:#edf1f7;--ink:#121c2e;--muted:#5a6a82;--line:#dce3ee;
+  --accent:#2e55d8;--accent-soft:#e4ebfd;--accent-ink:#ffffff;
+  --side:#0f1a2e;--side-ink:#b9c4d8;--side-act:#1d2c4a;
+  --ok:#16794a;--ok-soft:#dff3e8;--warn:#955700;--warn-soft:#fcefd3;--crit:#b82f2a;--crit-soft:#fbe1df;
+  --shadow:0 1px 2px rgba(18,28,46,.05),0 4px 16px rgba(18,28,46,.06);
+  --f-display:'Instrument Sans',system-ui,sans-serif;--f-body:'Instrument Sans',system-ui,sans-serif;--f-mono:'JetBrains Mono',ui-monospace,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a1120;--surface:#101a2e;--surface2:#17233b;--ink:#e8eefb;--muted:#93a2bd;--line:#223253;
+    --accent:#7b9bff;--accent-soft:#1a2850;--accent-ink:#0a1120;--side:#070d19;--side-ink:#9fb0cc;--side-act:#14213d;
+    --ok:#52cf8f;--ok-soft:#12352a;--warn:#f2b04a;--warn-soft:#3b2c0f;--crit:#ff8079;--crit-soft:#3e1b1a;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0a1120;--surface:#101a2e;--surface2:#17233b;--ink:#e8eefb;--muted:#93a2bd;--line:#223253;
+  --accent:#7b9bff;--accent-soft:#1a2850;--accent-ink:#0a1120;--side:#070d19;--side-ink:#9fb0cc;--side-act:#14213d;
+  --ok:#52cf8f;--ok-soft:#12352a;--warn:#f2b04a;--warn-soft:#3b2c0f;--crit:#ff8079;--crit-soft:#3e1b1a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14.5px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.012em;font-weight:650}
+h1{font-size:24px}h2{font-size:19px}h3{font-size:15.5px}h4{font-size:13.5px}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+small,.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+.ico{flex:none}
+
+/* shell */
+.shell{display:grid;grid-template-columns:244px 1fr;min-height:100%}
+.side{background:var(--side);color:var(--side-ink);position:sticky;top:0;height:100vh;overflow:auto;padding:16px 12px;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 14px;color:#fff;font:700 18px var(--f-display)}
+.brand small{display:block;color:var(--side-ink);font:400 11.5px var(--f-body);line-height:1.2}
+.logo{width:32px;height:32px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink)}
+.navsec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6f819f;padding:12px 10px 4px;font-weight:600}
+.ni{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--side-ink);padding:9px 10px;border-radius:9px;text-align:left;font-weight:500}
+.ni:hover{background:var(--side-act);color:#fff}
+.ni[aria-current="page"]{background:var(--side-act);color:#fff;box-shadow:inset 3px 0 0 var(--accent)}
+.ni .badge{margin-left:auto}
+.badge{background:var(--accent);color:var(--accent-ink);border-radius:999px;font:600 11px var(--f-mono);padding:1px 7px;min-width:20px;text-align:center}
+.badge.red{background:var(--crit);color:#fff}
+.badge.soft{background:var(--surface2);color:var(--muted)}
+.sidefoot{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:12px}
+.rolecard{background:var(--side-act);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.rolecard .who{display:flex;gap:10px;align-items:center;color:#fff}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+.rolecard select{background:#0f1a2e;border:1px solid #2b3d60;border-radius:8px;color:#fff;padding:6px 8px;width:100%}
+.assess{font-size:11.5px;line-height:1.35;color:#7d8fae;padding:0 4px}
+.mainc{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 24px;flex-wrap:wrap}
+.crumb{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px}
+.crumb b{color:var(--ink);font-weight:600}
+.spacer{flex:1}
+.gs{position:relative}
+.gs input{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:8px 12px 8px 34px;width:260px}
+.gs .ico{position:absolute;left:10px;top:9px;color:var(--muted)}
+.gsr{position:absolute;top:42px;left:0;width:340px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;z-index:30}
+.gsr button{display:flex;gap:10px;width:100%;border:0;background:none;padding:8px;border-radius:8px;text-align:left;align-items:center}
+.gsr button:hover{background:var(--surface2)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;background:var(--surface2);font-size:13px;white-space:nowrap}
+.iconbtn{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;display:grid;place-items:center;color:var(--ink)}
+.iconbtn:hover{background:var(--surface2)}
+.iconbtn .badge{position:absolute;top:-6px;right:-6px}
+.pop{position:absolute;right:0;top:46px;width:min(380px,92vw);background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.22);z-index:35;padding:8px;max-height:70vh;overflow:auto}
+.pop h4{padding:8px 10px;color:var(--muted)}
+.alert{display:flex;gap:10px;padding:10px;border-radius:10px;width:100%;border:0;background:none;text-align:left}
+.alert:hover{background:var(--surface2)}
+.alert .dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:none}
+.dot.crit{background:var(--crit)}.dot.warn{background:var(--warn)}.dot.info{background:var(--accent)}
+main{padding:22px 24px 90px;max-width:1360px;width:100%}
+.pagehead{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.pagehead p{color:var(--muted);margin-top:3px;max-width:70ch}
+
+/* buttons, pills */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 14px;font-weight:550;display:inline-flex;align-items:center;gap:7px;transition:background .12s}
+.btn:hover{background:var(--surface2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(1.1)}
+.btn.dng{background:var(--crit);border-color:var(--crit);color:#fff}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--surface2);color:var(--muted)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.fever,.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.eligible,.pill.approved,.pill.info{background:var(--accent-soft);color:var(--accent)}
+.pill.pending{background:var(--surface2);color:var(--muted)}
+.role-chip{font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 7px;background:var(--accent-soft);color:var(--accent)}
+
+/* kpi + panels */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.kpi .n{font:600 27px/1.15 var(--f-mono);margin-top:3px}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi.crit .n{color:var(--crit)}.kpi.ok .n{color:var(--ok)}.kpi.warn .n{color:var(--warn)}.kpi.acc .n{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.panel>h3,.panel>.ph{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}
+.stack{display:flex;flex-direction:column;gap:14px}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);text-align:center;font-size:14px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 12px;font-size:13.5px;color:var(--muted);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.search{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;min-width:230px}
+select.sel{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 10px}
+
+/* tables */
+.tw{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:auto;box-shadow:var(--shadow)}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{position:sticky;top:0;background:var(--surface2);text-align:left;font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:9px 12px;white-space:nowrap}
+.tbl td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:middle}
+.tbl tbody tr{cursor:pointer}
+.tbl tbody tr:hover{background:var(--surface2)}
+.tbl tr.rowcrit td:first-child{box-shadow:inset 3px 0 0 var(--crit)}
+.tbl tr.rowfever td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.tbl tr.rowok td:first-child{box-shadow:inset 3px 0 0 var(--ok)}
+.tbl tr.roweligible td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.tbl td.num,.tbl th.num{text-align:right}
+.tbl .nm b{display:block;line-height:1.25}
+.room{font:600 13px var(--f-mono);background:var(--surface2);border-radius:8px;padding:5px 8px;min-width:46px;text-align:center;display:inline-block}
+.temp{font:600 17px/1 var(--f-mono)}
+.temp.crit{color:var(--crit)}.temp.fever{color:var(--warn)}.temp.ok{color:var(--ok)}.temp.none{color:var(--muted)}
+.pips{display:inline-flex;gap:4px;align-items:center}
+.pip{width:11px;height:11px;border-radius:50%;border:2px solid var(--line)}
+.pip.on{background:var(--ok);border-color:var(--ok)}
+.task{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.task.done{background:var(--ok-soft);color:var(--ok)}
+.spark{display:block}
+.spark .l{stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linejoin:round}
+.spark .t{stroke:var(--warn);stroke-dasharray:2 2;stroke-width:1}
+.spark circle{fill:var(--accent)}.spark circle.f{fill:var(--warn)}.spark circle.c{fill:var(--crit)}
+
+/* kanban */
+.kan{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}
+.col{background:var(--surface2);border-radius:14px;padding:10px;min-height:120px}
+.col>header{display:flex;align-items:center;gap:8px;padding:2px 4px 10px}
+.col .list{display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 360px);min-height:100px;overflow:auto;padding:2px}
+.mini{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.mini:hover{border-color:var(--accent)}
+.mini.crit{border-left-color:var(--crit)}.mini.fever{border-left-color:var(--warn)}.mini.ok{border-left-color:var(--ok)}.mini.eligible{border-left-color:var(--accent)}
+.mini.locked{opacity:.8;border-style:dashed}
+.mini .grow{flex:1;min-width:0}
+.mini .grow b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lockmsg{font-size:12px;color:var(--muted)}
+
+/* rows, bars, banners */
+.row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .grow{flex:1;min-width:0}
+.row .grow b{display:block}
+.bar-track{height:9px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s}
+.bar-fill.ok{background:var(--ok)}.bar-fill.warn{background:var(--warn)}
+.prog{margin-bottom:14px}.prog .t{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:5px}
+.banner{border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px}
+.banner.crit{background:var(--crit-soft);color:var(--crit)}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner b{display:block}.banner span{color:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:0 0 12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
+.rt{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 4px;text-align:center;line-height:1.15}
+button.rt{cursor:pointer}
+.rt b{display:block;font:600 14px var(--f-mono)}
+.rt span{font-size:11px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt.crit{background:var(--crit-soft);border-color:var(--crit)}
+.rt.fever{background:var(--warn-soft);border-color:var(--warn)}
+.rt.ok{background:var(--ok-soft);border-color:var(--ok)}
+.rt.eligible,.rt.approved{background:var(--accent-soft);border-color:var(--accent)}
+.rt.free{border-style:dashed;background:transparent}
+.rt.cleaning{background:repeating-linear-gradient(45deg,var(--surface2),var(--surface2) 5px,var(--surface) 5px,var(--surface) 10px);border-style:dashed}
+.lg-crit{background:var(--crit)}.lg-fever{background:var(--warn)}.lg-ok{background:var(--ok)}.lg-eligible,.lg-approved{background:var(--accent)}.lg-pending{background:var(--line)}.lg-clean{background:var(--muted)}
+.log{max-height:320px;overflow:auto;font-size:13.5px}
+.log div{padding:6px 0;border-bottom:1px solid var(--line);display:flex;gap:10px}
+.log time{font:12px var(--f-mono);color:var(--muted);min-width:46px}
+
+/* drawer, modal, forms */
+.scrim{position:fixed;inset:0;background:rgba(6,14,28,.5);z-index:40;display:flex;justify-content:flex-end}
+.scrim.center{justify-content:center;align-items:center;padding:16px}
+.drawer{width:min(560px,100%);height:100%;background:var(--bg);overflow:auto;padding:18px;display:flex;flex-direction:column;gap:14px;box-shadow:-10px 0 30px rgba(0,0,0,.25)}
+.modal{width:min(480px,100%);background:var(--surface);border-radius:16px;padding:20px;max-height:92vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.modal h3{font-size:19px;margin-bottom:4px}
+.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.field label{font-size:13px;font-weight:600}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:9px 11px;width:100%}
+.field textarea{min-height:70px;resize:vertical}
+.tin{font:600 30px var(--f-mono)!important;max-width:180px}
+.fb{border-radius:10px;padding:9px 12px;font-size:13.5px;margin:8px 0}
+.fb.err{background:var(--crit-soft);color:var(--crit)}.fb.warn{background:var(--warn-soft);color:var(--warn)}.fb.ok{background:var(--ok-soft);color:var(--ok)}.fb.info{background:var(--accent-soft);color:var(--accent)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;margin:8px 0}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.dhead{display:flex;gap:12px;align-items:center}
+.dhead h2{line-height:1.15}
+.xbtn{margin-left:auto}
+.wf{display:flex;align-items:stretch;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.wf>div{flex:1;padding:10px 12px;border-right:1px solid var(--line);font-size:12.5px;min-width:0}
+.wf>div:last-child{border-right:0}
+.wf b{display:block;font-size:13.5px;margin-top:2px}
+.wf .done{background:var(--ok-soft)}.wf .now{background:var(--accent-soft)}.wf .lock{background:var(--surface2);color:var(--muted)}
+.wf small{display:block;text-transform:uppercase;letter-spacing:.05em;font-size:10.5px}
+.tl-i{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.tl-i:last-child{border-bottom:0}
+.tl-i time{font:12px var(--f-mono);color:var(--muted);min-width:92px;padding-top:2px}
+.tl-i.void{opacity:.5;text-decoration:line-through}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font:10.5px var(--f-mono)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .thr{stroke:var(--warn);stroke-dasharray:4 3;stroke-width:1.4}
+.chart .crt{stroke:var(--crit);stroke-dasharray:2 3;stroke-width:1.2}
+.chart .ln{stroke:var(--accent);stroke-width:2.4;fill:none;stroke-linejoin:round}
+.chart .area{fill:var(--accent);opacity:.12}
+.chart .dot{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.chart .dot.f{stroke:var(--warn)}.chart .dot.c{stroke:var(--crit);fill:var(--crit)}
+
+/* login */
+.login{min-height:100%;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.login .l{background:var(--side);color:#fff;padding:48px 44px;display:flex;flex-direction:column;gap:18px;justify-content:center}
+.login .l h1{font-size:clamp(30px,4vw,42px);line-height:1.08;color:#fff}
+.login .l p{color:var(--side-ink);max-width:50ch}
+.login .r{padding:44px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.role{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow)}
+.role:hover{border-color:var(--accent)}
+.role .avatar{width:40px;height:40px;border-radius:11px}
+.role b{display:block}
+.steps4{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.steps4 div{display:flex;gap:12px;align-items:center;color:var(--side-ink);font-size:14px}
+.steps4 i{font:600 12px var(--f-mono);font-style:normal;background:var(--side-act);color:#fff;border-radius:7px;width:26px;height:26px;display:grid;place-items:center}
+
+/* workflow guide + dock */
+.gl{display:grid;grid-template-columns:300px 1fr;gap:14px;align-items:start}
+.fl{display:flex;flex-direction:column;gap:8px}
+.fcard{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:3px}
+.fcard[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.fcard b{font-size:14px}.fcard small{font-size:12.5px}
+.stp{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.stp:last-child{border-bottom:0}
+.stp .n{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:600 12px var(--f-mono);flex:none;color:var(--muted)}
+.stp.done .n{background:var(--ok);border-color:var(--ok);color:#fff}
+.stp.cur .n{border-color:var(--accent);color:var(--accent)}
+.stp .b{flex:1;min-width:0}
+.stp .b b{display:block}
+.stp .r{color:var(--muted);font-size:13px}
+.dock{position:fixed;right:16px;bottom:16px;width:min(360px,calc(100% - 32px));background:var(--surface);border:1px solid var(--accent);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.28);z-index:45;overflow:hidden}
+.dock header{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--accent);color:var(--accent-ink)}
+.dock header b{flex:1;font-size:13.5px}
+.dock header button{border:0;background:rgba(255,255,255,.2);color:inherit;border-radius:7px;padding:2px 8px}
+.dock .bd{padding:6px 12px 12px;max-height:46vh;overflow:auto}
+.dock .stp{padding:8px 0;font-size:13.5px}
+
+.drawer-open .dock{right:auto;left:260px}
+@media (max-width:980px){.drawer-open .dock{display:none}}
+/* reference pages */
+.xs{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th,table.t td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+table.t td.c,table.t th.c{text-align:center}
+.sel-row{background:var(--ok-soft)}
+.rules{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px}
+.diag{width:100%;height:auto;display:block}
+.diag text{fill:var(--ink);font:12px var(--f-body)}
+.diag .lane{fill:var(--surface2)}
+.diag .lane.alt{fill:transparent}
+.diag .lt{fill:var(--muted);font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.05em}
+.diag rect.bx{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.diag rect.bx.sys{stroke:var(--muted);stroke-dasharray:4 3}
+.diag rect.bx.bad{stroke:var(--crit)}
+.diag rect.bx.good{stroke:var(--ok)}
+.diag path.ar{fill:none;stroke:var(--muted);stroke-width:1.5}
+.diag path.ar.dash{stroke-dasharray:4 3}
+.diag .lb{fill:var(--muted);font:11px var(--f-body)}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;border-radius:6px;padding:1px 7px;background:var(--surface2);color:var(--muted)}
+.tag.must{background:var(--crit-soft);color:var(--crit)}.tag.should{background:var(--warn-soft);color:var(--warn)}.tag.could{background:var(--accent-soft);color:var(--accent)}
+.toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(560px,calc(100% - 32px));pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);width:100%}
+.toast.warn{background:var(--warn);color:#fff}.toast.crit{background:var(--crit);color:#fff}
+
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px}
+  .brand{padding:0 8px 0 0}.navsec,.assess{display:none}
+  .ni{width:auto;padding:7px 10px}
+  .sidefoot{margin:0 0 0 auto;padding:0}.rolecard .who{display:none}.rolecard{padding:4px;background:none}
+  .login{grid-template-columns:1fr}.login .l,.login .r{padding:28px 20px}
+  .kan{grid-template-columns:1fr}.gl{grid-template-columns:1fr}
+  .top{padding:10px 16px}main{padding:16px 16px 90px}.gs input{width:100%}.gs{flex:1;min-width:180px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="overlay"></div>
+<div id="dock"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script>
+const FEVER = 38.0, CRIT = 39.5, LOW = 35.0, MINT = 34.0, MAXT = 42.0, NEED = 3, BENCH = 0.15, ROOMS = 74, MIN_SAMPLE = 30;
+const BASE = new Date(2026, 10, 12);
+const TREATMENTS = ['Continue supportive care','Antipyretic and hydration','IV fluids and close monitoring','Antiviral protocol','Escalate to intensive care','Other (see note)'];
+const USERS = {
+  nurse:{name:'Anita Rao',title:'Staff Nurse',letter:'N'},
+  doctor:{name:'Dr. Arjun Mehta',title:'Attending Doctor',letter:'D'},
+  head:{name:'Dr. Leela Iyer',title:'Head Doctor',letter:'H'},
+  admin:{name:'Rohan Desai',title:'Admin Staff',letter:'A'}
+};
+const NAV = {
+  nurse:[['rounds','Rounds'],['map','Ward map']],
+  doctor:[['visits','Visit queue'],['signoff','Discharge sign-off'],['map','Ward map']],
+  head:[['quality','Quality'],['visits','Visit queue'],['signoff','Discharge sign-off'],['map','Ward map']],
+  admin:[['overview','Overview'],['map','Ward map'],['quality','Quality']]
+};
+const PERMS = {
+  recordTemp:['nurse'], visit:['doctor','head'], approve:['doctor','head'], death:['doctor','head'],
+  discharge:['admin'], admit:['admin'], clean:['admin']
+};
+
+let S = null;           // application state
+const UI = {role:null, view:null, filter:'due', sort:'room', q:'', drawer:null, draft:{}, bell:false, auditF:'all', gf:'F1'};
+const GUIDE = {on:false, feat:null, done:new Set(), min:false};
+let onEmit = null;
+function emit(e){ GUIDE.done.add(e); if (onEmit) onEmit(e); }
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const dateOf = d => { const x = new Date(BASE); x.setDate(x.getDate() + d); return x; };
+const fmtDate = (d, o) => dateOf(d).toLocaleDateString('en-IN', o || {day:'numeric', month:'short'});
+const f1 = n => n.toFixed(1);
+const toF = c => c * 9 / 5 + 32;
+function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ---------- seed data ---------- */
+function seedState(){
+  const r = rng(11), pick = a => a[Math.floor(r() * a.length)];
+  const first = ['Aarav','Diya','Vihaan','Ananya','Kabir','Meera','Rohan','Ishita','Arjun','Saanvi','Dev','Navya','Reyansh','Kiara','Yash','Tara','Aditya','Myra','Karan','Riya','Neil','Sara','Om','Pooja','Imran','Farah','Joseph','Maria','Gurpreet','Simran','Harsh','Nisha','Varun','Pallavi','Manav','Zoya','Ritvik','Anika','Sameer','Leena'];
+  const last = ['Sharma','Patel','Nair','Iyer','Khan','Singh','Desai','Gupta','Menon','Joshi','Kulkarni','Reddy','Mehta','Verma','Shah','Pillai','Bose','Chopra','DSouza','Kapoor','Rao','Bhatt','Naik','Das','Malhotra'];
+  const used = new Set();
+  const mkName = () => { let n; do { n = pick(first) + ' ' + pick(last); } while (used.has(n)); used.add(n); return n; };
+  const nurses = ['Anita Rao','Kavya Nair','Sunil Patil'], docs = ['Dr. Arjun Mehta','Dr. Leela Iyer'];
+  const notes = ['Stable, tolerating fluids.','Fever persisting, hydration encouraged.','Responding to treatment.','Mild cough, no breathing difficulty.','Monitoring closely overnight.','Appetite improving.'];
+  const types = [];
+  for (let i = 0; i < 3; i++) types.push(5);
+  for (let i = 0; i < 2; i++) types.push(4);
+  for (let i = 0; i < 7; i++) types.push(3);
+  for (let i = 0; i < 9; i++) types.push(2);
+  for (let i = 0; i < 10; i++) types.push(1);
+  while (types.length < ROOMS) types.push(0);
+  for (let i = types.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [types[i], types[j]] = [types[j], types[i]]; }
+  const feverTemp = (i, f) => Math.min(40.4, Math.max(38.1, 38.3 + 1.4 * Math.sin(Math.PI * (i + .5) / f) + (r() - .5) * .6));
+  const clearTemp = () => 36.5 + r() * .8;
+  const round1 = x => Math.round(x * 10) / 10;
+  const patients = [];
+  let approvedCount = 0;
+  types.forEach((n, idx) => {
+    const room = idx + 1, f = 3 + Math.floor(r() * 5);
+    const k = n === 0 ? Math.floor(r() * f) : f + n;
+    const p = {id:'P' + (1000 + room), name:mkName(), age:8 + Math.floor(r() * 72), sex:r() < .5 ? 'F' : 'M', room, admitDay:-k, status:'active', readings:[], visits:[]};
+    for (let i = 0; i < k; i++) {
+      const day = -k + i;
+      p.readings.push({day, time:pad(6 + Math.floor(r() * 3)) + ':' + pad(Math.floor(r() * 60)), temp:round1(i < f ? feverTemp(i, f) : clearTemp()), by:pick(nurses)});
+      p.visits.push({day, time:pad(10 + Math.floor(r() * 3)) + ':' + pad(Math.floor(r() * 60)), by:pick(docs), treatment:i < f ? pick(TREATMENTS.slice(0, 4)) : TREATMENTS[0], note:pick(notes)});
+    }
+    const measured = r() < (n >= 3 ? .12 : .62);
+    if (measured) {
+      p.readings.push({day:0, time:pad(6 + Math.floor(r() * 3)) + ':' + pad(Math.floor(r() * 60)), temp:round1(k < f ? feverTemp(k, f) : clearTemp()), by:pick(nurses)});
+      if (r() < .5) p.visits.push({day:0, time:pad(10 + Math.floor(r() * 3)) + ':' + pad(Math.floor(r() * 60)), by:pick(docs), treatment:TREATMENTS[k < f ? 1 : 0], note:pick(notes)});
+    }
+    if (n >= 3) {
+      p.eligibleDay = -1 - (n - 3);
+      if (n >= 4 || approvedCount < 2) { p.status = 'approved'; p.approvedDay = Math.min(0, p.eligibleDay + 1); if (n === 3) approvedCount++; }
+    }
+    patients.push(p);
+  });
+  const closed = [];
+  const deadIdx = new Set();
+  while (deadIdx.size < 13) deadIdx.add(Math.floor(r() * 87));
+  for (let i = 0; i < 87; i++) closed.push({day:-30 + Math.floor(i * 30 / 87), outcome:deadIdx.has(i) ? 'deceased' : 'cured', delay:deadIdx.has(i) ? null : pick([0,0,1,1,1,2,0,1,3])});
+  const waiting = [];
+  for (let i = 0; i < 6; i++) waiting.push({id:'W' + i, name:mkName(), age:10 + Math.floor(r() * 65), sex:r() < .5 ? 'F' : 'M', since:pad(7 + i) + ':' + pad(Math.floor(r() * 60))});
+  return {day:0, patients, closed, waiting, cleaning:{}, log:[
+    {t:'06:45', m:'Nurse shift handover completed', role:'system'},
+    {t:'07:10', m:'Room map synced: 74 of 74 rooms occupied', role:'system'},
+    {t:'08:02', m:'Waiting list has 6 patients; no rooms free', role:'system'}
+  ]};
+}
+
+/* ---------- domain logic ---------- */
+const byId = id => S.patients.find(p => p.id === id);
+const live = p => p.status === 'active' || p.status === 'approved';
+const dayReadings = (p, d) => p.readings.filter(r => r.day === d && !r.voided);
+const todayTemp = p => { const a = dayReadings(p, S.day); return a.length ? a[a.length - 1].temp : null; };
+const todayReading = p => { const a = dayReadings(p, S.day); return a.length ? a[a.length - 1] : null; };
+const lastReading = p => { const a = p.readings.filter(r => !r.voided); return a.length ? a[a.length - 1] : null; };
+function dayStatus(p, d, readings){
+  const a = (readings || p.readings).filter(r => r.day === d && !r.voided);
+  if (!a.length) return null;
+  return a.some(r => r.temp >= FEVER) ? 'fever' : 'clear';
+}
+function streakCalc(p, readings, today){
+  const hasToday = dayStatus(p, today, readings) !== null;
+  const start = hasToday ? today : today - 1;
+  let c = 0;
+  for (let d = start; d >= p.admitDay; d--) { if (dayStatus(p, d, readings) === 'clear') c++; else break; }
+  return {count:c, start};
+}
+const streak = p => streakCalc(p, p.readings, S.day).count;
+const eligible = p => p.status === 'active' && streak(p) >= NEED;
+const visitToday = p => p.visits.find(v => v.day === S.day);
+function pstate(p){
+  if (p.status === 'approved') return {k:'approved', label:'Cleared for discharge'};
+  const t = todayTemp(p);
+  if (t !== null && t >= CRIT) return {k:'crit', label:'High fever'};
+  if (t !== null && t >= FEVER) return {k:'fever', label:'Fever'};
+  if (eligible(p)) return {k:'eligible', label:'Needs discharge sign-off'};
+  if (t === null) return {k:'pending', label:'Temperature due'};
+  return {k:'ok', label:'No fever today'};
+}
+const tempClass = t => t === null ? 'none' : t >= CRIT ? 'crit' : t >= FEVER ? 'fever' : 'ok';
+const patientInRoom = n => S.patients.find(p => p.room === n && live(p));
+const roomState = n => patientInRoom(n) ? 'occupied' : (S.cleaning[n] ? 'cleaning' : 'free');
+const freeRooms = () => { const a = []; for (let n = 1; n <= ROOMS; n++) if (roomState(n) === 'free') a.push(n); return a; };
+const cleaningRooms = () => Object.keys(S.cleaning).map(Number).sort((a, b) => a - b);
+const dayIn = p => S.day - p.admitDay + 1;
+function logEvent(m, role){ const r = role || UI.role; S.log.unshift({t:nowTime(), day:S.day, m, role:r, user:USERS[r] ? USERS[r].name : 'System'}); S.log = S.log.slice(0, 200); }
+function allowed(action){ return PERMS[action].includes(UI.role); }
+const rate = () => { const d = S.closed.filter(c => c.outcome === 'deceased').length, n = S.closed.length; return {dead:d, cured:n - d, n, mort:n ? d / n : 0}; };
+
+/* temperature validation: returns level, message, and whether an explicit confirmation is needed */
+function checkTemp(p, raw, correcting){
+  const v = parseFloat(String(raw).replace(',', '.'));
+  if (raw === '' || isNaN(v)) return {lvl:'info', msg:'Enter the reading in °C, for example 37.4.', block:true};
+  const t = Math.round(v * 10) / 10;
+  if (t < MINT || t > MAXT) return {lvl:'err', msg:'A reading of ' + f1(t) + ' °C is outside the possible range (' + f1(MINT) + ' to ' + f1(MAXT) + '). Check the thermometer and enter it again.', block:true, t};
+  const prev = (() => { const a = p.readings.filter(r => r.day === S.day - 1 && !r.voided); return a.length ? a[a.length - 1].temp : null; })();
+  const sim = p.readings.filter(r => !(r.day === S.day && correcting)).concat([{day:S.day, temp:t}]);
+  const after = streakCalc(p, sim, S.day).count;
+  let lvl, msg, confirm = null;
+  if (t >= CRIT) { lvl = 'err'; msg = 'High fever. The doctor is alerted and this patient moves to the top of the visit queue. Fever-free days reset to 0.'; }
+  else if (t >= FEVER) { lvl = 'warn'; msg = 'Fever (' + f1(FEVER) + ' °C or above). Fever-free days reset to 0.'; }
+  else { lvl = 'ok'; msg = 'No fever. Fever-free days after saving: ' + Math.min(after, NEED) + ' of ' + NEED + (after >= NEED ? '. This patient becomes eligible for discharge sign-off.' : '.'); }
+  if (t < LOW) { lvl = 'warn'; msg = 'Unusually low reading (below ' + f1(LOW) + ' °C).'; confirm = 'I confirmed the thermometer was placed correctly.'; }
+  else if (prev !== null && Math.abs(t - prev) >= 2) { confirm = 'This differs from yesterday (' + f1(prev) + ' °C) by 2 °C or more. I confirm it is correct.'; }
+  return {lvl, msg, confirm, t, after, block:false};
+}
+
+/* actions: each one enforces its own rules and returns {ok, msg} */
+function recordTemp(pid, t, opt){
+  const p = byId(pid);
+  if (!allowed('recordTemp')) return {ok:false, msg:'Only nurses can record temperatures.'};
+  if (!p || !(p.status === 'active' || p.status === 'approved')) return {ok:false, msg:'This patient is not on active rounds.'};
+  const chk = checkTemp(p, t, opt.correcting);
+  if (chk.block) return {ok:false, msg:chk.msg};
+  if (chk.confirm && !opt.confirmed) return {ok:false, msg:'Tick the confirmation box to save this reading.'};
+  const existing = todayReading(p);
+  if (existing && !opt.correcting) return {ok:false, msg:'Temperature already recorded today by ' + existing.by + ' at ' + existing.time + '. Use Correct reading if it is wrong.'};
+  if (existing && opt.correcting) { if (!opt.reason) return {ok:false, msg:'Choose a reason for the correction.'}; existing.voided = true; existing.voidReason = opt.reason; }
+  const preSt = streak(p);
+  p.readings.push({day:S.day, time:nowTime(), temp:chk.t, by:USERS.nurse.name, note:opt.note || ''});
+  emit('temp'); if (existing) emit('correct');
+  if (preSt < NEED && streak(p) >= NEED && p.status === 'active') emit('becameEligible');
+  if (p.status === 'approved' && chk.t >= FEVER) { p.status = 'active'; delete p.approvedDay; logEvent('ALERT: Room ' + p.room + ' fever on re-check, discharge approval cancelled', 'system'); emit('revoked'); }
+  logEvent('Room ' + p.room + ' ' + p.name + ': ' + f1(chk.t) + ' °C ' + (existing ? '(corrected)' : 'recorded'));
+  if (chk.t >= CRIT) { emit('crit'); logEvent('ALERT: Room ' + p.room + ' high fever ' + f1(chk.t) + ' °C, moved to top of visit queue', 'system'); }
+  let msg = 'Saved ' + f1(chk.t) + ' °C for Room ' + p.room + '.';
+  return {ok:true, msg, level:chk.t >= CRIT ? 'crit' : ''};
+}
+function logVisit(pid, d){
+  const p = byId(pid);
+  if (!allowed('visit')) return {ok:false, msg:'Only doctors can log visits.'};
+  if (!p || p.status !== 'active') return {ok:false, msg:'This patient is not on active rounds.'};
+  if (visitToday(p)) return {ok:false, msg:'A visit is already logged for today.'};
+  const noTemp = todayTemp(p) === null;
+  if (noTemp && !d.emergency) return {ok:false, msg:'Temperature not recorded yet. The nurse must record it first, or log an emergency visit with a reason.'};
+  if (noTemp && (!d.note || d.note.trim().length < 3)) return {ok:false, msg:'Add a reason for the emergency visit.'};
+  if (!d.treatment) return {ok:false, msg:'Choose a treatment plan.'};
+  if (d.treatment.startsWith('Other') && (!d.note || d.note.trim().length < 3)) return {ok:false, msg:'Describe the treatment in the note.'};
+  p.visits.push({day:S.day, time:nowTime(), by:USERS[UI.role].name, treatment:d.treatment, note:(noTemp ? 'EMERGENCY (no temperature): ' : '') + (d.note || '').trim()});
+  logEvent('Room ' + p.room + ' ' + p.name + ': doctor visit logged' + (noTemp ? ' (emergency override)' : ''));
+  emit('visit');
+  return {ok:true, msg:'Visit logged for Room ' + p.room + '.'};
+}
+function approveDischarge(pid){
+  const p = byId(pid);
+  if (!allowed('approve')) return {ok:false, msg:'Only doctors can approve a discharge.'};
+  if (!p || !eligible(p)) return {ok:false, msg:'This patient does not meet the ' + NEED + ' fever-free day rule.'};
+  const sk = streakCalc(p, p.readings, S.day);
+  p.eligibleDay = sk.start - (sk.count - NEED);
+  p.status = 'approved'; p.approvedDay = S.day;
+  logEvent('Room ' + p.room + ' ' + p.name + ': discharge approved, sent to admin'); emit('approve');
+  return {ok:true, msg:'Approved. Admin has Room ' + p.room + ' in the discharge queue.'};
+}
+function recordDeath(pid, note){
+  const p = byId(pid);
+  if (!allowed('death')) return {ok:false, msg:'Only doctors can record an outcome.'};
+  if (!p || !live(p)) return {ok:false, msg:'This patient is already closed.'};
+  if (!note || note.trim().length < 3) return {ok:false, msg:'Add a clinical note before recording the outcome.'};
+  p.status = 'deceased'; p.closedDay = S.day;
+  S.closed.push({day:S.day, outcome:'deceased', delay:null});
+  S.cleaning[p.room] = true;
+  logEvent('Room ' + p.room + ' ' + p.name + ': outcome recorded (deceased). Room needs cleaning'); emit('death');
+  const r = rate();
+  return {ok:true, msg:'Outcome recorded. Mortality is now ' + (r.mort * 100).toFixed(1) + '%.', level:(r.n >= MIN_SAMPLE && r.mort > BENCH) ? 'crit' : ''};
+}
+function dischargePatient(pid){
+  const p = byId(pid);
+  if (!allowed('discharge')) return {ok:false, msg:'Only admin staff can discharge patients.'};
+  if (!p || p.status !== 'approved') return {ok:false, msg:'A doctor must approve the discharge first.'};
+  p.status = 'discharged'; p.closedDay = S.day;
+  S.closed.push({day:S.day, outcome:'cured', delay:Math.max(0, S.day - p.eligibleDay)});
+  S.cleaning[p.room] = true;
+  logEvent('Room ' + p.room + ' ' + p.name + ': discharged. Room needs cleaning'); emit('discharge');
+  return {ok:true, msg:'Discharged. Room ' + p.room + ' is waiting to be cleaned.'};
+}
+function markClean(n){
+  if (!allowed('clean')) return {ok:false, msg:'Only admin staff can mark rooms ready.'};
+  delete S.cleaning[n];
+  logEvent('Room ' + n + ' cleaned and ready'); emit('clean');
+  return {ok:true, msg:'Room ' + n + ' is ready for the next patient.'};
+}
+function admit(d){
+  if (!allowed('admit')) return {ok:false, msg:'Only admin staff can admit patients.'};
+  if (!d.name || d.name.trim().length < 2) return {ok:false, msg:'Enter the patient name.'};
+  const age = parseInt(d.age, 10);
+  if (!age || age < 0 || age > 110) return {ok:false, msg:'Enter an age between 0 and 110.'};
+  if (d.room === 'wait') {
+    S.waiting.push({id:'W' + Date.now(), name:d.name.trim(), age, sex:d.sex, since:nowTime()});
+    logEvent(d.name.trim() + ' added to waiting list'); emit('waitadd');
+    return {ok:true, msg:'Added to the waiting list.'};
+  }
+  const room = parseInt(d.room, 10);
+  if (roomState(room) !== 'free') return {ok:false, msg:'Room ' + room + ' is not available. Pick a free room.'};
+  S.patients.push({id:'P' + Date.now(), name:d.name.trim(), age, sex:d.sex, room, admitDay:S.day, status:'active', readings:[], visits:[]});
+  if (d.waitId) S.waiting = S.waiting.filter(w => w.id !== d.waitId);
+  logEvent(d.name.trim() + ' admitted to Room ' + room); emit('admit');
+  return {ok:true, msg:d.name.trim() + ' admitted to Room ' + room + '. Added to tomorrow-first rounds: temperature due today.'};
+}
+function advanceDay(){
+  const missed = S.patients.filter(p => p.status === 'active' && todayTemp(p) === null).length;
+  const unvisited = S.patients.filter(p => p.status === 'active' && !visitToday(p)).length;
+  S.day++; emit('nextday');
+  logEvent('New day started. Yesterday: ' + missed + ' missed temperatures, ' + unvisited + ' patients without a visit', 'system');
+  return {ok:true, msg:'Day advanced to ' + fmtDate(S.day, {weekday:'short', day:'numeric', month:'short'}) + '. Yesterday: ' + missed + ' missed temperatures.'};
+}
+
+/* Sprint planning (Q4): exhaustive search over all 2^10 subsets, so the answer is checked, not assumed */
+function sprintPlan(){
+  const cap = 25 - 3 * 5;
+  const W = {High:6, Medium:3, Low:1};   // Low = 1, Medium = 3 x Low, High = 2 x Medium
+  const items = [['A','High',1],['B','High',3],['C','High',5],['D','Medium',2],['E','Medium',3],['F','Medium',1],['G','Low',.4],['H','Low',.5],['I','Low',.3],['J','Low',.1]].map(([n,p,e]) => ({n, p, e, v:W[p]}));
+  let best = null;
+  for (let m = 0; m < 1 << items.length; m++) {
+    let e = 0, v = 0;
+    items.forEach((it, i) => { if (m >> i & 1) { e += it.e; v += it.v; } });
+    e = Math.round(e * 10) / 10;
+    if (e > cap + 1e-9) continue;
+    if (!best || v > best.v || (v === best.v && e < best.e)) best = {m, e, v};
+  }
+  items.forEach((it, i) => it.pick = !!(best.m >> i & 1));
+  return {cap, items, best};
+}
+
+
+/* ---------- derived data used by alerts, sparklines and SLA flags ---------- */
+function eligSince(p){ const sk = streakCalc(p, p.readings, S.day); return sk.count >= NEED ? sk.start - (sk.count - NEED) : null; }
+function peaks(p, n){ const a = []; for (let d = S.day - n + 1; d <= S.day; d++) { const r = dayReadings(p, d); a.push(r.length ? Math.max(...r.map(x => x.temp)) : null); } return a; }
+function alerts(){
+  const out = [], act_ = S.patients.filter(p => p.status === 'active');
+  const crit = act_.filter(p => (todayTemp(p) || 0) >= CRIT);
+  crit.forEach(p => out.push({k:'crit', t:'High fever in Room ' + p.room, d:p.name + ' · ' + f1(todayTemp(p)) + ' °C', pid:p.id}));
+  act_.filter(eligible).forEach(p => { const dl = S.day - eligSince(p); if (dl >= 1) out.push({k:'warn', t:'Sign-off overdue, Room ' + p.room, d:p.name + ' eligible for ' + dl + ' day(s)', pid:p.id}); });
+  S.patients.filter(p => p.status === 'approved' && S.day - p.approvedDay >= 1).forEach(p => out.push({k:'warn', t:'Discharge overdue, Room ' + p.room, d:p.name + ' approved ' + (S.day - p.approvedDay) + ' day(s) ago', pid:p.id}));
+  const cl = cleaningRooms().length;
+  if (cl && S.waiting.length) out.push({k:'info', t:cl + ' room(s) waiting to be cleaned', d:S.waiting.length + ' patient(s) are on the waiting list', view:'overview'});
+  const r = rate();
+  if (r.n >= MIN_SAMPLE && r.mort > BENCH) out.push({k:'crit', t:'Mortality above 15% benchmark', d:(r.mort * 100).toFixed(1) + '% of ' + r.n + ' closed cases', view:'quality'});
+  const due = act_.filter(p => todayTemp(p) === null).length;
+  if (due) out.push({k:'info', t:due + ' temperature(s) still due today', d:'Nurses see these first in Rounds', view:'rounds'});
+  return out;
+}
+
+/* =====================================================================
+   UI layer
+   ===================================================================== */
+const IC = {
+  grid:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z', therm:'M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z', pulse:'M3 12h4l2-6 4 12 2-6h6',
+  check:'M5 12l5 5 9-10', chart:'M4 20V10M10 20V4M16 20v-7M22 20H2', list:'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  map:'M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14', bell:'M6 9a6 6 0 1 1 12 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 0 0 4 0',
+  flow:'M5 5h5v4H5zM14 15h5v4h-5zM10 7h4a3 3 0 0 1 3 3v5', book:'M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11',
+  target:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z', search:'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5',
+  layers:'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5'
+};
+const ico = (n, s) => '<svg class="ico" viewBox="0 0 24 24" width="' + (s || 18) + '" height="' + (s || 18) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + IC[n] + '"/></svg>';
+const NAVDEF = {
+  nurse:[['rounds','Rounds','therm'],['map','Ward map','map']],
+  doctor:[['visits','Visit queue','pulse'],['signoff','Discharge sign-off','check'],['map','Ward map','map']],
+  head:[['quality','Quality','chart'],['visits','Visit queue','pulse'],['signoff','Discharge sign-off','check'],['audit','Audit log','list'],['map','Ward map','map']],
+  admin:[['overview','Overview','grid'],['map','Ward map','map'],['quality','Quality','chart'],['audit','Audit log','list']]
+};
+const REF = [['guide','Workflow guide','flow'],['screens','Screens and flows','layers'],['strategy','Strategy and priorities','target'],['spec','Spec: Q1, Q3, Q4','book']];
+const REFV = REF.map(r => r[0]);
+const TITLES = {rounds:'Rounds', visits:'Visit queue', signoff:'Discharge sign-off', overview:'Overview', map:'Ward map', quality:'Quality', audit:'Audit log', guide:'Workflow guide', screens:'Screens and flows', strategy:'Strategy and priorities', spec:'Spec: Q1, Q3, Q4'};
+const ROLENAME = {nurse:'Nurse', doctor:'Doctor', head:'Head Doctor', admin:'Admin Staff'};
+
+/* ---------- small renderers ---------- */
+function toast(msg, kind){
+  const el = document.createElement('div'); el.className = 'toast ' + (kind || ''); el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), kind === 'crit' ? 6500 : 3800);
+}
+const pill = (k, t) => '<span class="pill ' + k + '">' + t + '</span>';
+const pips = n => '<span class="pips" title="' + Math.min(n, NEED) + ' of ' + NEED + ' fever-free days">' + [0,1,2].map(i => '<i class="pip ' + (i < n ? 'on' : '') + '"></i>').join('') + '</span>';
+const tempCell = p => { const r = todayReading(p), t = r ? r.temp : null; return '<span class="temp ' + tempClass(t) + '">' + (t === null ? '--.-' : f1(t)) + '</span> <small>' + (r ? r.time + ' · ' + esc(r.by.split(' ')[0]) : 'not recorded') + '</small>'; };
+function spark(p){
+  const a = peaks(p, 6), W = 74, H = 24;
+  const y = v => H - 2 - ((Math.min(41, Math.max(35.5, v)) - 35.5) / 5.5) * (H - 4);
+  const pts = a.map((v, i) => v === null ? null : [2 + i * (W - 4) / (a.length - 1), y(v), v]).filter(Boolean);
+  if (!pts.length) return '<small>no history</small>';
+  const q = pts[pts.length - 1];
+  return '<svg class="spark" width="74" height="24" viewBox="0 0 74 24" aria-label="Last 6 days"><line class="t" x1="0" x2="74" y1="' + y(FEVER) + '" y2="' + y(FEVER) + '"/>' + (pts.length > 1 ? '<path class="l" d="' + pts.map((z, i) => (i ? 'L' : 'M') + z[0].toFixed(1) + ' ' + z[1].toFixed(1)).join(' ') + '"/>' : '') + '<circle class="' + (q[2] >= CRIT ? 'c' : q[2] >= FEVER ? 'f' : '') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="3"/></svg>';
+}
+const pagehead = (t, sub, right) => '<div class="pagehead"><div><h1>' + t + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div><span class="spacer"></span>' + (right || '') + '</div>';
+const kpi = (cls, l, n, s) => '<div class="kpi ' + cls + '"><div class="l">' + l + '</div><div class="n">' + n + '</div>' + (s ? '<div class="s">' + s + '</div>' : '') + '</div>';
+
+/* ---------- guided workflows (feature, steps, expected result, event that completes it) ---------- */
+const nearPatient = () => S.patients.find(p => p.status === 'active' && todayTemp(p) === null && streak(p) === NEED - 1);
+const FEATS = [
+  {id:'F1', title:'Record a temperature, never twice', roles:['nurse'], problem:'Temperatures are taken twice or missed because nobody can see who is done.', metric:'Duplicate readings 0. Patients with a reading by end of day 100%.', steps:[
+    {a:'nurse', t:'Open Rounds and select Record temperature on a patient who is due.', r:'The form opens with the patient and date filled in.', e:'openTemp', go:() => ({role:'nurse', view:'rounds', filter:'due'})},
+    {a:'nurse', t:'Type 45 in the temperature field.', r:'An error appears and Save stays disabled.', e:'rangeErr'},
+    {a:'nurse', t:'Enter a valid reading such as 38.6 and save.', r:'The row locks and shows who recorded it and when.', e:'temp'},
+    {a:'nurse', t:'Open the Recorded filter and choose Correct on that patient.', r:'A reason is mandatory. The old value stays in the history, struck through.', e:'correct', go:() => ({role:'nurse', view:'rounds', filter:'done'})}]},
+  {id:'F2', title:'Doctor visit unlocks after the temperature', roles:['doctor'], problem:'Doctors visit before the temperature exists and end up measuring it themselves.', metric:'Visits without a temperature: 0, except flagged emergencies.', steps:[
+    {a:'doctor', t:'Open Visit queue. Patients without a temperature sit in a locked column.', r:'Three columns: waiting, ready (high fever first), visited.', e:'viewVisits', go:() => ({role:'doctor', view:'visits'})},
+    {a:'doctor', t:'Open any locked patient.', r:'Log visit is disabled. Only a written emergency override unlocks it.', e:'openLocked'},
+    {a:'doctor', t:'Open a patient from Ready for visit and log the visit.', r:'The patient moves to Visited today. One visit per day.', e:'visit'}]},
+  {id:'F3', title:'Automatic fever-free count and sign-off', roles:['nurse','doctor'], problem:'Doctors count fever-free days by hand and forget to tell admin.', metric:'Eligible patients signed off within 1 day: 100%.', steps:[
+    {a:'nurse', t:'Record a normal reading (for example 36.8) for a patient with 2 fever-free days.', r:'The form says "3 of 3". The patient becomes eligible with no one counting.', e:'becameEligible', hint:() => { const p = nearPatient(); return p ? 'Try Room ' + p.room + ', ' + p.name + '.' : 'Any patient with 2 fever-free days.'; }, go:() => { const p = nearPatient(); return {role:'nurse', view:'rounds', filter:'due', q:p ? String(p.room) : ''}; }},
+    {a:'doctor', t:'Open Discharge sign-off. The patient is already listed. Approve discharge.', r:'The patient appears in admin’s discharge queue at once.', e:'approve', go:() => ({role:'doctor', view:'signoff'})}]},
+  {id:'F4', title:'Waiting list, discharge, room release, admission', roles:['admin'], problem:'Beds are full, patients wait, and rooms stay empty after discharge.', metric:'Hours from discharge to next admission. Days kept after eligible.', steps:[
+    {a:'admin', t:'Select Register patient while all rooms are full.', r:'The form defaults to the waiting list. Nobody is sent to a room that is not free.', e:'waitadd', go:() => ({role:'admin', view:'overview'})},
+    {a:'admin', t:'Discharge an approved patient from the Discharge queue.', r:'The room moves to Rooms to clean.', e:'discharge'},
+    {a:'admin', t:'Mark that room ready.', r:'The room is free. Admit buttons on the waiting list turn on.', e:'clean'},
+    {a:'admin', t:'Admit a patient from the waiting list.', r:'The patient appears on the nurse’s list as "Temperature due".', e:'admit'}]},
+  {id:'F5', title:'Mortality alert against the 15% benchmark', roles:['head','doctor'], problem:'There is no way to see performance against the 85% success rate.', metric:'Time to notice a rise above 15%: same day.', steps:[
+    {a:'head', t:'Open Quality as Head Doctor.', r:'Mortality sits just under the benchmark, so the banner is amber.', e:'viewQuality', go:() => ({role:'head', view:'quality'})},
+    {a:'doctor', t:'Open any patient and choose Record death. Add a note and confirm.', r:'The case closes and the room goes to cleaning.', e:'death', go:() => ({role:'doctor', view:'visits'})},
+    {a:'head', t:'Return to Quality.', r:'The banner turns red and a badge appears on the Quality tab.', e:'alertSeen', go:() => ({role:'head', view:'quality'})}]},
+  {id:'F6', title:'Alerts and escalations', roles:['all'], problem:'Delays go unnoticed until someone checks a journal.', metric:'Overdue sign-offs and discharges visible within minutes.', steps:[
+    {a:'head', t:'Select the bell in the top bar.', r:'A ranked list: high fevers, overdue sign-offs, overdue discharges, mortality.', e:'bell', go:() => ({role:'head', view:'quality'})},
+    {a:'head', t:'Select any alert.', r:'It opens the patient or screen that needs action.', e:'alertGo'}]},
+  {id:'F7', title:'Day rollover, compliance and audit trail', roles:['admin','head'], problem:'Nobody can tell yesterday’s misses or who changed what.', metric:'Missed readings reported daily. 100% of actions in the audit log.', steps:[
+    {a:'admin', t:'Open Overview and check today’s compliance bars.', r:'Temperatures and visits done, out of active patients.', e:'viewOverview', go:() => ({role:'admin', view:'overview'})},
+    {a:'admin', t:'Open Demo controls and select Start next day.', r:'Status resets, history stays, and the log notes yesterday’s missed readings.', e:'nextday'},
+    {a:'head', t:'Open Audit log.', r:'Every action with who, what and when.', e:'viewAudit', go:() => ({role:'head', view:'audit'})}]}
+];
+const feat = id => FEATS.find(f => f.id === id);
+const curStep = f => f.steps.findIndex(s => !GUIDE.done.has(s.e));
+function doGo(g){
+  if (g.role) UI.role = g.role;
+  UI.view = g.view; UI.drawer = null; MODAL = null; UI.bell = false;
+  if (g.filter) UI.filter = g.filter;
+  UI.q = g.q || '';
+  render(); window.scrollTo(0, 0);
+}
+function startFeat(id){ GUIDE.on = true; GUIDE.feat = id; GUIDE.min = false; GUIDE.done = new Set(); UI.gf = id; const f = feat(id); if (f.steps[0].go) doGo(f.steps[0].go()); else render(); }
+function stepsHTML(f, compact){
+  const cur = curStep(f), active = GUIDE.on && GUIDE.feat === f.id;
+  return f.steps.map((s, i) => {
+    const done = active && GUIDE.done.has(s.e), isCur = active && i === cur;
+    const h = s.hint ? s.hint() : '';
+    return '<div class="stp ' + (done ? 'done' : '') + ' ' + (isCur ? 'cur' : '') + '"><span class="n">' + (done ? '✓' : i + 1) + '</span><div class="b"><span class="role-chip">' + ROLENAME[s.a] + '</span> <b style="display:inline">' + s.t + '</b>' + (h && !done ? '<div class="r mono" style="color:var(--accent)">' + esc(h) + '</div>' : '') + ((!compact || isCur) ? '<div class="r">' + s.r + '</div>' : '') +
+      (isCur ? '<div style="margin-top:6px"><button class="btn sm pri" data-act="step" data-f="' + f.id + '" data-i="' + i + '">' + (UI.role === s.a ? 'Show me where' : 'Switch to ' + ROLENAME[s.a]) + '</button></div>' : '') + '</div></div>';
+  }).join('');
+}
+function renderDock(){
+  const el = document.getElementById('dock'); if (!el) return;
+  if (!GUIDE.on || !UI.role) { el.innerHTML = ''; return; }
+  const f = feat(GUIDE.feat), n = f.steps.filter(s => GUIDE.done.has(s.e)).length, all = n === f.steps.length;
+  const idx = FEATS.indexOf(f), nx = FEATS[idx + 1];
+  el.innerHTML = '<div class="dock" role="region" aria-label="Workflow guide"><header><b>' + f.id + ' · ' + f.title + '</b><button data-act="dockmin" aria-label="Minimise">' + (GUIDE.min ? 'Open' : 'Hide') + '</button><button data-act="dockoff" aria-label="Close guide">Close</button></header>' +
+    (GUIDE.min ? '' : '<div class="bd"><div class="bar-track" style="margin:10px 0 2px"><div class="bar-fill ok" style="width:' + (n / f.steps.length * 100) + '%"></div></div><small class="mono">' + n + ' / ' + f.steps.length + ' steps</small>' +
+    (all ? '<div class="fb ok" style="margin-top:10px"><b>Workflow complete.</b> ' + f.metric + '</div><div class="actions" style="margin-top:6px">' + (nx ? '<button class="btn pri sm" data-act="startfeat" data-f="' + nx.id + '">Next: ' + nx.id + '</button>' : '') + '<button class="btn sm" data-act="startfeat" data-f="' + f.id + '">Replay</button></div>' : stepsHTML(f, true)) + '</div>') + '</div>';
+}
+onEmit = () => { if (typeof document !== 'undefined') renderDock(); };
+
+/* ---------- shell ---------- */
+function render(){
+  const app = document.getElementById('app');
+  if (!UI.role) { app.innerHTML = loginHTML(); renderOverlay(); renderDock(); return; }
+  const nav = NAVDEF[UI.role];
+  if (!UI.view || (!nav.some(n => n[0] === UI.view) && !REFV.includes(UI.view))) UI.view = nav[0][0];
+  const u = USERS[UI.role];
+  const badge = id => {
+    let n = 0, red = false;
+    if (id === 'visits') n = S.patients.filter(p => p.status === 'active' && todayTemp(p) !== null && !visitToday(p)).length;
+    if (id === 'signoff') n = S.patients.filter(eligible).length;
+    if (id === 'rounds') n = S.patients.filter(p => p.status === 'active' && todayTemp(p) === null).length;
+    if (id === 'overview') n = S.patients.filter(p => p.status === 'approved').length + cleaningRooms().length;
+    if (id === 'quality') { const r = rate(); if (r.n >= MIN_SAMPLE && r.mort > BENCH) { n = '!'; red = true; } }
+    return n ? '<span class="badge ' + (red ? 'red' : '') + '">' + n + '</span>' : '';
+  };
+  const item = (n, ref) => '<button class="ni" data-act="view" data-v="' + n[0] + '" ' + (UI.view === n[0] ? 'aria-current="page"' : '') + '>' + ico(n[2]) + '<span>' + n[1] + '</span>' + (ref ? '' : badge(n[0])) + '</button>';
+  const al = alerts(), urgent = al.filter(a => a.k !== 'info').length;
+  const q = document.activeElement && document.activeElement.id === 'q' ? document.activeElement.selectionStart : null;
+  app.innerHTML = '<div class="shell"><aside class="side">' +
+    '<div class="brand"><span class="logo">' + ico('pulse', 18) + '</span><span>WardWatch<small>Quarantine and Treatment Centre</small></span></div>' +
+    '<div class="navsec">Workspace</div>' + nav.map(n => item(n)).join('') +
+    '<div class="navsec">Reference</div>' + REF.map(n => item(n, true)).join('') +
+    '<div class="sidefoot"><div class="rolecard"><div class="who"><span class="avatar">' + u.letter + '</span><div><b>' + esc(u.name) + '</b><br><small style="color:var(--side-ink)">' + u.title + '</small></div></div>' +
+    '<label class="sr" for="rolesel" style="position:absolute;left:-9999px">Switch role</label><select id="rolesel">' + Object.keys(USERS).map(r => '<option value="' + r + '" ' + (r === UI.role ? 'selected' : '') + '>View as ' + ROLENAME[r] + '</option>').join('') + '</select></div>' +
+    '<div class="assess">Built for the FactWise Technical Product Manager practice problem.</div></div></aside>' +
+    '<div class="mainc"><header class="top"><div class="crumb">Centre <span>/</span> <b>' + TITLES[UI.view] + '</b></div><span class="spacer"></span>' +
+    '<div class="gs">' + ico('search', 16) + '<input id="gs" placeholder="Find patient or room" aria-label="Find patient or room" autocomplete="off"><div id="gsr"></div></div>' +
+    '<span class="chip">Day <b class="mono">' + (S.day + 1) + '</b> · ' + fmtDate(S.day, {weekday:'short', day:'numeric', month:'short', year:'numeric'}) + '</span>' +
+    '<div style="position:relative"><button class="iconbtn" data-act="bell" aria-label="Alerts">' + ico('bell') + (urgent ? '<span class="badge red">' + urgent + '</span>' : '') + '</button>' + (UI.bell ? bellHTML(al) : '') + '</div>' +
+    '<button class="btn sm" data-act="demo">Demo controls</button><button class="btn sm" data-act="logout">Sign out</button></header>' +
+    '<main>' + viewHTML() + '</main></div></div>';
+  if (q !== null) { const el = document.getElementById('q'); if (el) { el.focus(); el.setSelectionRange(q, q); } }
+  if (UI.view === 'visits') emit('viewVisits');
+  if (UI.view === 'overview') emit('viewOverview');
+  if (UI.view === 'audit') emit('viewAudit');
+  if (UI.view === 'quality') { emit('viewQuality'); const r = rate(); if (r.n >= MIN_SAMPLE && r.mort > BENCH) emit('alertSeen'); }
+  renderOverlay(); renderDock();
+}
+function bellHTML(al){
+  return '<div class="pop" role="dialog" aria-label="Alerts"><h4>Alerts for ' + ROLENAME[UI.role] + '</h4>' + (al.length ? al.slice(0, 12).map((a, i) => '<button class="alert" data-act="alertgo" data-i="' + i + '"><span class="dot ' + a.k + '"></span><span><b>' + esc(a.t) + '</b><br><small>' + esc(a.d) + '</small></span></button>').join('') : '<div class="empty">Nothing needs attention.</div>') + '</div>';
+}
+
+/* ---------- login ---------- */
+function loginHTML(){
+  const cards = [['nurse','Records the daily temperature and sees who is still due.'],['doctor','Sees only patients whose temperature is in. Logs visits and signs off discharges.'],['head','Everything a doctor does, plus quality, audit and benchmark tracking.'],['admin','Discharges cleared patients, frees rooms and admits from the waiting list.']];
+  return '<div class="login"><section class="l"><div class="brand" style="padding:0"><span class="logo">' + ico('pulse', 18) + '</span><span>WardWatch</span></div>' +
+    '<h1>Every patient, every day, in the right order.</h1><p>One shared checklist for a 74-room quarantine and treatment centre. Temperature first, then the doctor visit, then discharge once a patient has 3 fever-free days.</p>' +
+    '<div class="steps4"><div><i>1</i>Nurse records temperature, locked after saving</div><div><i>2</i>Doctor visit unlocks for that patient</div><div><i>3</i>System counts fever-free days and flags eligibility</div><div><i>4</i>Doctor signs off, admin discharges, room is freed</div></div></section>' +
+    '<section class="r"><h2>Sign in as</h2>' + cards.map(c => '<button class="role" data-act="login" data-r="' + c[0] + '"><span class="avatar">' + USERS[c[0]].letter + '</span><span><b>' + ROLENAME[c[0]] + ' · ' + esc(USERS[c[0]].name) + '</b><small>' + c[1] + '</small></span></button>').join('') +
+    '<button class="btn pri" style="justify-content:center;margin-top:6px" data-act="explore">Explore with the reviewer guide</button><small>The guide walks through every feature with a checklist that ticks as you do each step.</small></section></div>';
+}
+
+/* ---------- views ---------- */
+function viewHTML(){
+  switch (UI.view) {
+    case 'rounds': return roundsHTML(); case 'visits': return visitsHTML(); case 'signoff': return signoffHTML();
+    case 'overview': return overviewHTML(); case 'quality': return qualityHTML(); case 'map': return mapHTML(); case 'audit': return auditHTML();
+    case 'guide': return guideHTML(); case 'screens': return screensHTML(); case 'strategy': return strategyHTML(); case 'spec': return specHTML();
+  }
+  return '';
+}
+const prioOf = p => { const t = todayTemp(p); return t === null ? 4 : t >= CRIT ? 0 : t >= FEVER ? 1 : eligible(p) ? 2 : 3; };
+
+function roundsHTML(){
+  const list = S.patients.filter(p => p.status === 'active');
+  const due = list.filter(p => todayTemp(p) === null), done = list.length - due.length, fev = list.filter(p => (todayTemp(p) || 0) >= FEVER).length;
+  let rows = list.filter(p => UI.filter === 'due' ? todayTemp(p) === null : UI.filter === 'done' ? todayTemp(p) !== null : UI.filter === 'fever' ? (todayTemp(p) || 0) >= FEVER : true);
+  if (UI.q) { const q = UI.q.toLowerCase(); rows = rows.filter(p => p.name.toLowerCase().includes(q) || String(p.room) === q.replace(/^r(oom)?\s*/, '')); }
+  rows.sort((a, b) => UI.sort === 'temp' ? (todayTemp(b) || 0) - (todayTemp(a) || 0) || a.room - b.room : UI.sort === 'fever' ? streak(b) - streak(a) || a.room - b.room : a.room - b.room);
+  const pct = list.length ? Math.round(done / list.length * 100) : 100;
+  return pagehead('Temperature rounds', 'One reading per patient per day. Saved readings are locked, so nobody is measured twice.') +
+    '<div class="kpis">' + kpi('warn', 'Still to measure', due.length, 'Shown first in To record') + kpi('ok', 'Recorded today', done + '<small class="mono"> / ' + list.length + '</small>', pct + '% of round') + kpi('crit', 'Fever today', fev, 'Reading 38.0 °C or above') + kpi('acc', 'On sign-off track', S.patients.filter(p => p.status === 'active' && streak(p) === NEED - 1).length, 'At 2 of 3 fever-free days') + '</div>' +
+    '<div class="controls"><div class="seg" role="group" aria-label="Filter">' + [['due', 'To record (' + due.length + ')'], ['done', 'Recorded'], ['fever', 'Fever'], ['all', 'All']].map(f => '<button aria-pressed="' + (UI.filter === f[0]) + '" data-act="filter" data-f="' + f[0] + '">' + f[1] + '</button>').join('') + '</div>' +
+    '<input id="q" class="search" placeholder="Search name or room number" value="' + esc(UI.q) + '" aria-label="Search patients"><label class="sr" for="sort" style="position:absolute;left:-9999px">Sort</label><select id="sort" class="sel"><option value="room" ' + (UI.sort === 'room' ? 'selected' : '') + '>Sort: room</option><option value="temp" ' + (UI.sort === 'temp' ? 'selected' : '') + '>Sort: highest temperature</option><option value="fever" ' + (UI.sort === 'fever' ? 'selected' : '') + '>Sort: most fever-free days</option></select></div>' +
+    (rows.length ? '<div class="tw"><table class="tbl"><thead><tr><th>Room</th><th>Patient</th><th>Today</th><th>Last 6 days</th><th>Fever-free</th><th>Status</th><th class="num">Action</th></tr></thead><tbody>' + rows.map(nurseRow).join('') + '</tbody></table></div>' : '<div class="empty">' + (UI.filter === 'due' ? 'All temperatures are recorded for today.' : 'No patients match.') + '</div>');
+}
+function nurseRow(p){
+  const st = pstate(p), has = todayTemp(p) !== null;
+  return '<tr class="row' + st.k + '" data-open="' + p.id + '"><td><span class="room">R' + p.room + '</span></td><td class="nm"><b>' + esc(p.name) + '</b><small>' + p.age + p.sex + ' · Day ' + dayIn(p) + '</small></td><td>' + tempCell(p) + '</td><td>' + spark(p) + '</td><td>' + pips(streak(p)) + '</td><td>' + pill(st.k, st.label) + '</td><td class="num">' +
+    (has ? '<button class="btn sm" data-act="temp" data-id="' + p.id + '" data-c="1">Correct</button>' : '<button class="btn pri sm" data-act="temp" data-id="' + p.id + '">Record</button>') + '</td></tr>';
+}
+
+function visitsHTML(){
+  const list = S.patients.filter(p => p.status === 'active');
+  const ready = list.filter(p => todayTemp(p) !== null && !visitToday(p)).sort((a, b) => prioOf(a) - prioOf(b) || a.room - b.room);
+  const wait = list.filter(p => todayTemp(p) === null && !visitToday(p)).sort((a, b) => a.room - b.room);
+  const done = list.filter(p => visitToday(p)).sort((a, b) => a.room - b.room);
+  return pagehead('Visit queue', 'A patient unlocks the moment the nurse saves their temperature. Highest fever comes first.') +
+    '<div class="kpis">' + kpi('acc', 'Ready for visit', ready.length) + kpi('crit', 'High fever, see first', ready.filter(p => todayTemp(p) >= CRIT).length, '39.5 °C or above') + kpi('warn', 'Waiting for temperature', wait.length, 'Locked until nurse records') + kpi('ok', 'Visited today', done.length + '<small class="mono"> / ' + list.length + '</small>') + '</div>' +
+    '<div class="kan">' + col('Waiting for temperature', wait.length, wait.map(p => mini(p, 'locked')).join(''), 'Every temperature is in.') + col('Ready for visit', ready.length, ready.map(p => mini(p, '')).join(''), 'No patients are ready right now.') + col('Visited today', done.length, done.map(p => mini(p, 'done')).join(''), 'No visits logged yet.') + '</div>';
+}
+const col = (t, n, body, empty) => '<section class="col"><header><h3>' + t + '</h3><span class="badge soft">' + n + '</span></header><div class="list">' + (body || '<div class="empty">' + empty + '</div>') + '</div></section>';
+function mini(p, mode){
+  const st = pstate(p), t = todayTemp(p);
+  return '<div class="mini ' + st.k + ' ' + (mode === 'locked' ? 'locked' : '') + '" data-open="' + p.id + '" tabindex="0"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b>' + (mode === 'locked' ? '<span class="lockmsg">Locked: temperature not recorded</span>' : '<span class="lockmsg">' + st.label + ' · ' + pips(streak(p)) + '</span>') + '</div>' + (t !== null ? '<span class="temp ' + tempClass(t) + '">' + f1(t) + '</span>' : '<span class="muted mono">--.-</span>') + '</div>';
+}
+
+function signoffHTML(){
+  const el = S.patients.filter(eligible).sort((a, b) => eligSince(a) - eligSince(b) || a.room - b.room);
+  const ap = S.patients.filter(p => p.status === 'approved').sort((a, b) => a.room - b.room);
+  const near = S.patients.filter(p => p.status === 'active' && streak(p) === NEED - 1).sort((a, b) => a.room - b.room);
+  const wait = p => { const d = S.day - eligSince(p); return d >= 1 ? '<span class="pill warn">Overdue ' + d + 'd</span>' : '<span class="pill info">New</span>'; };
+  return pagehead('Discharge sign-off', 'The system counts fever-free days. Patients appear here the moment they reach ' + NEED + ' consecutive days. One tap sends them to admin.') +
+    '<div class="grid2"><section class="panel"><h3>Ready for your sign-off <span class="badge">' + el.length + '</span></h3>' + (el.length ? el.map(p => '<div class="row" data-open="' + p.id + '" style="cursor:pointer"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b><small>' + pips(streak(p)) + ' ' + streak(p) + ' fever-free days</small></div>' + wait(p) + '<button class="btn pri sm" data-act="approve" data-id="' + p.id + '">Approve</button></div>').join('') : '<div class="empty">Nobody has reached ' + NEED + ' fever-free days yet.</div>') + '</section>' +
+    '<section class="panel"><h3>Approved, with admin <span class="badge">' + ap.length + '</span></h3>' + (ap.length ? ap.map(p => '<div class="row" data-open="' + p.id + '" style="cursor:pointer"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b><small>Approved ' + (p.approvedDay === S.day ? 'today' : (S.day - p.approvedDay) + ' day(s) ago') + '</small></div>' + pill('approved', 'With admin') + '</div>').join('') : '<div class="empty">Nothing waiting on admin.</div>') + '</section>' +
+    '<section class="panel"><h3>One day away <span class="badge soft">' + near.length + '</span></h3><p class="muted" style="margin:-4px 0 6px">At 2 of ' + NEED + '. One more clear reading makes them eligible.</p>' + (near.length ? near.map(p => '<div class="row" data-open="' + p.id + '" style="cursor:pointer"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b><small>' + (todayTemp(p) === null ? 'Temperature due today' : 'Recorded today') + '</small></div>' + pips(2) + '</div>').join('') : '<div class="empty">Nobody at 2 of ' + NEED + ' right now.</div>') + '</section></div>';
+}
+
+function overviewHTML(){
+  const occ = S.patients.filter(live).length, fr = freeRooms(), cl = cleaningRooms();
+  const el = S.patients.filter(eligible), ap = S.patients.filter(p => p.status === 'approved'), actv = S.patients.filter(p => p.status === 'active');
+  const tdone = actv.filter(p => todayTemp(p) !== null).length, vdone = actv.filter(p => visitToday(p)).length;
+  const pt = actv.length ? Math.round(tdone / actv.length * 100) : 100, pv = actv.length ? Math.round(vdone / actv.length * 100) : 100;
+  const r = rate(), alert = r.n >= MIN_SAMPLE && r.mort > BENCH;
+  return pagehead('Centre overview', 'Beds, discharges and today’s ward activity in one place.', '<button class="btn pri" data-act="register">Register patient</button>') +
+    (alert ? '<div class="banner crit"><div><b>Mortality is above the 15% benchmark</b><span>' + (r.mort * 100).toFixed(1) + '% of ' + r.n + ' closed cases. Open Quality and alert the Head Doctor.</span></div></div>' : '') +
+    '<div class="kpis">' + kpi('', 'Occupancy', occ + '<small class="mono"> / ' + ROOMS + '</small>', '<div class="bar-track" style="margin-top:6px"><div class="bar-fill" style="width:' + (occ / ROOMS * 100) + '%"></div></div>') + kpi('ok', 'Free rooms', fr.length) + kpi('warn', 'Rooms to clean', cl.length) + kpi('acc', 'Ready to discharge', ap.length) + kpi('', 'Awaiting doctor', el.length, 'Eligible, not signed off') + kpi('warn', 'Waiting list', S.waiting.length) + '</div>' +
+    '<div class="grid2"><section class="panel"><h3>Discharge queue <span class="badge">' + ap.length + '</span></h3>' + (ap.length ? ap.slice().sort((a, b) => a.approvedDay - b.approvedDay).map(p => { const lag = S.day - p.eligibleDay; return '<div class="row"><span class="room">R' + p.room + '</span><div class="grow"><b>' + esc(p.name) + '</b><small>Approved ' + (p.approvedDay === S.day ? 'today' : (S.day - p.approvedDay) + ' day(s) ago') + '</small></div>' + (lag > 1 ? '<span class="pill warn">' + lag + 'd since eligible</span>' : '') + '<button class="btn pri sm" data-act="discharge" data-id="' + p.id + '">Discharge</button></div>'; }).join('') : '<div class="empty">No approved discharges waiting.</div>') +
+      (el.length ? '<p class="muted" style="margin:12px 0 0">' + el.length + ' more eligible, waiting for a doctor: ' + el.slice(0, 6).map(p => 'R' + p.room).join(', ') + (el.length > 6 ? '…' : '') + '</p>' : '') + '</section>' +
+    '<section class="panel"><h3>Rooms to clean <span class="badge">' + cl.length + '</span></h3>' + (cl.length ? cl.map(n => '<div class="row"><span class="room">R' + n + '</span><div class="grow"><b>Room ' + n + '</b><small>Vacated, not yet cleaned</small></div><button class="btn sm" data-act="clean" data-n="' + n + '">Mark ready</button></div>').join('') : '<div class="empty">No rooms are waiting for cleaning.</div>') + '</section>' +
+    '<section class="panel"><h3>Waiting list <span class="badge">' + S.waiting.length + '</span></h3>' + (S.waiting.length ? S.waiting.map(w => '<div class="row"><div class="grow"><b>' + esc(w.name) + '</b><small>' + w.age + w.sex + ' · requested ' + w.since + '</small></div><button class="btn sm ' + (fr.length ? 'pri' : '') + '" data-act="admitWait" data-id="' + w.id + '" ' + (fr.length ? '' : 'disabled title="No free rooms"') + '>' + (fr.length ? 'Admit' : 'No room') + '</button></div>').join('') : '<div class="empty">Waiting list is empty.</div>') + '</section>' +
+    '<section class="panel"><h3>Today’s ward compliance</h3><div class="prog"><div class="t"><span>Temperatures recorded</span><b class="mono">' + tdone + ' / ' + actv.length + '</b></div><div class="bar-track"><div class="bar-fill ok" style="width:' + pt + '%"></div></div></div><div class="prog"><div class="t"><span>Doctor visits logged</span><b class="mono">' + vdone + ' / ' + actv.length + '</b></div><div class="bar-track"><div class="bar-fill ok" style="width:' + pv + '%"></div></div></div>' +
+      '<h4 style="margin:4px 0 6px">Recent activity</h4><div class="log">' + S.log.slice(0, 10).map(l => '<div><time>' + l.t + '</time><span>' + esc(l.m) + '</span></div>').join('') + '</div></section></div>';
+}
+
+function qualityHTML(){
+  const r = rate(), pct = r.mort * 100, ok = 100 - pct;
+  const alert = r.n >= MIN_SAMPLE && r.mort > BENCH, near = !alert && r.mort >= BENCH - .02;
+  const delays = S.closed.filter(c => c.outcome === 'cured' && c.delay !== null);
+  const avgDelay = delays.length ? delays.reduce((s, c) => s + c.delay, 0) / delays.length : 0, late = delays.filter(c => c.delay > 0).length;
+  const days = []; for (let d = S.day - 13; d <= S.day; d++) { const sub = S.closed.filter(c => c.day <= d); days.push({d, v:sub.length ? sub.filter(c => c.outcome === 'deceased').length / sub.length * 100 : 0}); }
+  const W = 640, H = 220, L = 34, R = 10, T = 12, B = 26, ymax = 25;
+  const x = i => L + i * (W - L - R) / (days.length - 1), y = v => T + (1 - v / ymax) * (H - T - B);
+  const path = days.map((p, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(p.v).toFixed(1)).join(' ');
+  const area = path + ' L' + x(days.length - 1) + ' ' + y(0) + ' L' + x(0) + ' ' + y(0) + ' Z', last = days[days.length - 1];
+  const chart = '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Cumulative mortality over 14 days against the 15 percent benchmark">' + [0, 5, 10, 15, 20, 25].map(v => '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (L - 6) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + v + '%</text>').join('') +
+    '<line class="thr" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(15) + '" y2="' + y(15) + '"/><text x="' + (W - R) + '" y="' + (y(15) - 5) + '" text-anchor="end" style="fill:var(--warn)">15% benchmark</text><path class="area" d="' + area + '"/><path class="ln" d="' + path + '"/>' +
+    days.filter((p, i) => i % 3 === 0 || i === days.length - 1).map(p => '<text x="' + x(days.indexOf(p)) + '" y="' + (H - 8) + '" text-anchor="middle">' + fmtDate(p.d) + '</text>').join('') +
+    '<circle class="dot ' + (last.v > 15 ? 'c' : '') + '" cx="' + x(days.length - 1) + '" cy="' + y(last.v) + '" r="5"/><text x="' + (x(days.length - 1) - 8) + '" y="' + (y(last.v) - 9) + '" text-anchor="end" style="fill:var(--ink);font-weight:600">' + last.v.toFixed(1) + '%</text></svg>';
+  return pagehead('Treatment quality', 'Mortality among closed cases (discharged cured or deceased) against the 85% success benchmark.') +
+    (alert ? '<div class="banner crit"><div><b>Mortality is above the 15% benchmark</b><span>' + pct.toFixed(1) + '% across ' + r.n + ' closed cases (' + r.dead + ' deaths). Review treatment protocols and staffing.</span></div></div>' : near ? '<div class="banner warn"><div><b>Approaching the 15% benchmark</b><span>' + pct.toFixed(1) + '% across ' + r.n + ' closed cases. One more death puts the centre over the line.</span></div></div>' : '<div class="banner ok"><div><b>Within benchmark</b><span>' + pct.toFixed(1) + '% mortality across ' + r.n + ' closed cases.</span></div></div>') +
+    '<div class="kpis">' + kpi(alert ? 'crit' : 'ok', 'Mortality (benchmark 15%)', pct.toFixed(1) + '%') + kpi(ok >= 85 ? 'ok' : 'crit', 'Success rate (benchmark 85%)', ok.toFixed(1) + '%') + kpi('', 'Closed cases', r.n) + kpi(avgDelay > .5 ? 'warn' : 'ok', 'Avg extra days after eligible', avgDelay.toFixed(1)) + kpi('', 'Discharges held up', late + '<small class="mono"> / ' + delays.length + '</small>') + '</div>' +
+    '<div class="grid2"><section class="panel"><h3>Cumulative mortality, last 14 days</h3>' + chart + '<p class="muted" style="margin-top:6px;font-size:13px">Alerts fire once at least ' + MIN_SAMPLE + ' cases are closed, so one early death does not trigger a false alarm.</p></section>' +
+    '<section class="panel"><h3>How the numbers are worked out</h3><ul class="rules"><li>Mortality = deaths ÷ (deaths + cured discharges). Patients still in a room are not counted.</li><li>Success rate = 100% minus mortality.</li><li>Extra days = days between the 3rd fever-free day and the actual discharge. It exposes sign-off and admin delays.</li><li>Try it: as Doctor, record a death for any patient, then return here.</li></ul></section></div>';
+}
+
+function mapHTML(){
+  const cnt = {}, tiles = [];
+  for (let n = 1; n <= ROOMS; n++) {
+    const rs = roomState(n), p = patientInRoom(n), k = rs === 'occupied' ? pstate(p).k : rs;
+    cnt[k] = (cnt[k] || 0) + 1;
+    const sub = rs === 'occupied' ? esc(p.name.split(' ')[0]) : rs === 'free' ? 'Free' : 'Cleaning';
+    tiles.push(p ? '<button class="rt ' + k + '" data-open="' + p.id + '" title="' + esc(p.name + ' · ' + pstate(p).label) + '"><b>' + n + '</b><span>' + sub + '</span></button>' : '<div class="rt ' + k + '"><b>' + n + '</b><span>' + sub + '</span></div>');
+  }
+  const lg = [['crit', 'High fever'], ['fever', 'Fever'], ['ok', 'No fever today'], ['pending', 'Temp due'], ['eligible', 'Needs sign-off'], ['approved', 'Cleared'], ['cleaning', 'Cleaning']];
+  return pagehead('Ward map', 'All ' + ROOMS + ' rooms at a glance. Select a room to open the patient.') +
+    '<p class="legend">' + lg.map(l => '<span><i class="lg-' + (l[0] === 'cleaning' ? 'clean' : l[0]) + '"></i>' + l[1] + ' <b class="mono">' + (cnt[l[0]] || 0) + '</b></span>').join('') + '<span><i style="border:1px dashed var(--muted)"></i>Free <b class="mono">' + (cnt.free || 0) + '</b></span></p><div class="map">' + tiles.join('') + '</div>';
+}
+
+function auditHTML(){
+  const rows = S.log.filter(l => UI.auditF === 'all' || l.role === UI.auditF);
+  return pagehead('Audit log', 'Every state change with who did it and when. Corrections keep the original value.') +
+    '<div class="controls"><div class="seg" role="group" aria-label="Filter by role">' + [['all', 'All'], ['nurse', 'Nurse'], ['doctor', 'Doctor'], ['head', 'Head Doctor'], ['admin', 'Admin'], ['system', 'System']].map(f => '<button aria-pressed="' + (UI.auditF === f[0]) + '" data-act="auditf" data-f="' + f[0] + '">' + f[1] + '</button>').join('') + '</div></div>' +
+    '<div class="tw"><table class="tbl"><thead><tr><th>When</th><th>User</th><th>Role</th><th>Event</th></tr></thead><tbody>' + (rows.length ? rows.slice(0, 80).map(l => '<tr style="cursor:default"><td class="mono">' + fmtDate(l.day || 0) + ' ' + l.t + '</td><td>' + esc(l.user || (USERS[l.role] ? USERS[l.role].name : 'System')) + '</td><td>' + (ROLENAME[l.role] || 'System') + '</td><td>' + esc(l.m) + '</td></tr>').join('') : '<tr><td colspan="4"><div class="empty">No events for this filter yet.</div></td></tr>') + '</tbody></table></div>';
+}
+
+/* ---------- workflow guide page ---------- */
+function guideHTML(){
+  const f = feat(UI.gf) || FEATS[0], active = GUIDE.on && GUIDE.feat === f.id;
+  return pagehead('Workflow guide', 'Seven features, each with its screens, roles and a live checklist. Start one and the guide follows you across roles, ticking each step when you complete the real action.') +
+    '<div class="gl"><div class="fl">' + FEATS.map(x => '<button class="fcard" data-act="gsel" data-f="' + x.id + '" aria-pressed="' + (x.id === f.id) + '"><b>' + x.id + ' · ' + x.title + '</b><small>' + x.roles.map(r => r === 'all' ? 'All roles' : ROLENAME[r]).join(' · ') + ' · ' + x.steps.length + ' steps</small></button>').join('') + '</div>' +
+    '<section class="panel"><div class="ph"><h2>' + f.id + ' · ' + f.title + '</h2><span class="spacer"></span><button class="btn pri" data-act="startfeat" data-f="' + f.id + '">' + (active ? 'Restart guided run' : 'Start guided run') + '</button></div>' +
+    '<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-bottom:8px"><div class="fb info" style="margin:0"><b>Problem it solves</b><br>' + f.problem + '</div><div class="fb ok" style="margin:0"><b>How we would know it works</b><br>' + f.metric + '</div></div>' + stepsHTML(f, false) + '</section></div>';
+}
+
+/* ---------- screens and flows page ---------- */
+function swimHTML(){
+  const lanes = ['Nurse', 'System', 'Doctor', 'Admin', 'Head Doctor'], LH = 84, LX = 100, W = 1060, H = lanes.length * LH + 8, bw = 138, bh = 50;
+  const cx = i => LX + 14 + i * 160, cy = l => 4 + l * LH + (LH - bh) / 2;
+  const B = {
+    n1:{c:0, l:0, t:['Record temperature', 'Locked after saving'], k:''}, s2:{c:1, l:1, t:['Validate, lock, count', 'fever-free days'], k:'sys'}, d3:{c:2, l:2, t:['Visit unlocks', 'Log visit and treatment'], k:''},
+    s4:{c:3, l:1, t:['3 fever-free days?', 'Flag as eligible'], k:'sys'}, d5:{c:4, l:2, t:['Approve discharge', 'One tap'], k:''}, a5:{c:4, l:3, t:['Discharge', 'Room goes to cleaning'], k:'good'},
+    a6:{c:5, l:3, t:['Mark room ready', 'Admit from waiting list'], k:''}, h6:{c:5, l:4, t:['Mortality and delay', 'metrics, alerts'], k:'sys'}, d7:{c:3, l:2, t:['Record death', 'Note required'], k:'bad'}
+  };
+  const bx = id => { const b = B[id]; return {x:cx(b.c), y:cy(b.l)}; };
+  const ar = (a, b, dash) => { const A = bx(a), Bb = bx(b);
+    let d; if (A.x === Bb.x) { const y1 = A.y < Bb.y ? A.y + bh : A.y, y2 = A.y < Bb.y ? Bb.y : Bb.y + bh; d = 'M' + (A.x + bw / 2) + ' ' + y1 + ' V' + y2; }
+    else if (A.y === Bb.y) d = 'M' + (A.x + bw) + ' ' + (A.y + bh / 2) + ' H' + Bb.x;
+    else { const x1 = A.x + bw, y1 = A.y + bh / 2, x2 = Bb.x, y2 = Bb.y + bh / 2, xm = (x1 + x2) / 2; d = 'M' + x1 + ' ' + y1 + ' H' + xm + ' V' + y2 + ' H' + x2; }
+    return '<path class="ar ' + (dash ? 'dash' : '') + '" d="' + d + '" marker-end="url(#ah)"/>'; };
+  return '<svg class="diag" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Swimlane: nurse, system, doctor, admin and head doctor steps from temperature to discharge"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>' +
+    lanes.map((l, i) => '<rect class="lane ' + (i % 2 ? 'alt' : '') + '" x="0" y="' + (4 + i * LH) + '" width="' + W + '" height="' + LH + '"/><text class="lt" x="10" y="' + (4 + i * LH + LH / 2 + 4) + '">' + l + '</text>').join('') +
+    [ar('n1', 's2'), ar('s2', 'd3'), ar('d3', 's4'), ar('s4', 'd5'), ar('d5', 'a5'), ar('a5', 'a6'), ar('a5', 'h6', 1), ar('d3', 'd7', 1)].join('') +
+    Object.keys(B).map(id => { const p = bx(id), b = B[id]; return '<rect class="bx ' + b.k + '" x="' + p.x + '" y="' + p.y + '" width="' + bw + '" height="' + bh + '" rx="9"/><text x="' + (p.x + bw / 2) + '" y="' + (p.y + 21) + '" text-anchor="middle" style="font-weight:600">' + b.t[0] + '</text><text class="lb" x="' + (p.x + bw / 2) + '" y="' + (p.y + 38) + '" text-anchor="middle">' + b.t[1] + '</text>'; }).join('') + '</svg>';
+}
+function stateHTML(){
+  const bx = (x, y, w, t, s, k) => '<rect class="bx ' + (k || '') + '" x="' + x + '" y="' + y + '" width="' + w + '" height="52" rx="10"/><text x="' + (x + w / 2) + '" y="' + (y + 22) + '" text-anchor="middle" style="font-weight:600">' + t + '</text><text class="lb" x="' + (x + w / 2) + '" y="' + (y + 39) + '" text-anchor="middle">' + s + '</text>';
+  const ln = (d, t, tx, ty, dash) => '<path class="ar ' + (dash ? 'dash' : '') + '" d="' + d + '" marker-end="url(#ah2)"/>' + (t ? '<text class="lb" x="' + tx + '" y="' + ty + '" text-anchor="middle">' + t + '</text>' : '');
+  return '<svg class="diag" viewBox="0 0 1060 250" role="img" aria-label="Patient status flow"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>' +
+    bx(10, 60, 150, 'Waiting list', 'No free room') + bx(240, 60, 170, 'Active', 'Daily temp, then visit') + bx(490, 60, 170, 'Eligible', '3 fever-free days') + bx(740, 60, 150, 'Approved', 'Doctor signed off') + bx(930, 60, 120, 'Discharged', 'Room cleaning', 'good') + bx(490, 170, 170, 'Deceased', 'Doctor, note required', 'bad') +
+    ln('M160 86 H240', 'admin admits', 200, 76) + ln('M410 86 H490', 'system flags', 450, 76) + ln('M660 86 H740', 'doctor approves', 700, 76) + ln('M890 86 H930', '', 0, 0) +
+    ln('M325 112 V196 H490', 'doctor records', 400, 190, 1) + ln('M815 112 V196 H660', '', 0, 0, 1) + ln('M740 60 V30 H325 V60', 'fever on re-check cancels approval', 530, 24, 1) + '</svg>';
+}
+function screensHTML(){
+  const S_ = [['S1', 'Sign in', 'All', 'Pick a role', 'Role-based home', 'login'], ['S2', 'Rounds', 'Nurse', 'To-do table with filters, sort, sparkline', 'Record, correct', 'nurse|rounds'], ['S3', 'Record temperature form', 'Nurse', 'Live validation and fever-free preview', 'Error, warning, confirm tick, correction reason', 'nurse|rounds'], ['S4', 'Patient drawer', 'All', '3-stage workflow, chart, timeline', 'Role-specific actions only', 'doctor|visits'], ['S5', 'Visit queue', 'Doctor', 'Locked, ready, visited columns', 'Locked state, emergency override, severity order', 'doctor|visits'], ['S6', 'Discharge sign-off', 'Doctor', 'Eligible, approved, one day away', 'Empty states, overdue chip', 'doctor|signoff'], ['S7', 'Overview', 'Admin', 'Beds, queue, cleaning, waiting list, compliance', 'No room, nothing waiting', 'admin|overview'], ['S8', 'Register or admit', 'Admin', 'Patient form with room or waiting list', 'Validation, room unavailable', 'admin|overview'], ['S9', 'Ward map', 'All', '74 rooms by status', 'Free, cleaning, occupied', 'nurse|map'], ['S10', 'Quality', 'Head, Admin', 'Mortality vs 15%, trend, delays', 'Within, approaching, above benchmark', 'head|quality'], ['S11', 'Audit log', 'Head, Admin', 'Who did what, filter by role', 'Empty filter', 'head|audit'], ['S12', 'Alerts', 'All', 'Ranked list of what needs action', 'Nothing needs attention', 'head|quality']];
+  return pagehead('Screens and flows', 'The screens, how work moves between roles, and how a patient moves through statuses.') +
+    '<div class="stack"><section class="panel"><h3>End-to-end flow by role</h3><p class="muted" style="margin:-4px 0 8px">Dashed boxes are done by the system. Dashed arrows are side effects or exceptions.</p><div class="xs">' + swimHTML() + '</div></section>' +
+    '<section class="panel"><h3>Patient status flow</h3><div class="xs">' + stateHTML() + '</div></section>' +
+    '<section class="panel"><h3>Screen inventory</h3><div class="xs"><table class="t"><thead><tr><th></th><th>Screen</th><th>Role</th><th>Shows</th><th>States handled</th><th></th></tr></thead><tbody>' + S_.map(s => '<tr><td class="mono">' + s[0] + '</td><td><b>' + s[1] + '</b></td><td>' + s[2] + '</td><td>' + s[3] + '</td><td>' + s[4] + '</td><td>' + (s[5] === 'login' ? '<button class="btn sm" data-act="logout">Open</button>' : '<button class="btn sm" data-act="go" data-role="' + s[5].split('|')[0] + '" data-v="' + s[5].split('|')[1] + '">Open</button>') + '</td></tr>').join('') + '</tbody></table></div></section></div>';
+}
+
+/* ---------- strategy page (how I would prioritise as the product owner) ---------- */
+function strategyHTML(){
+  const R = [
+    ['Daily temperature capture with lock and validation', 'must', 10, 3, 95, 1.5], ['Visit queue locked until temperature recorded', 'must', 9, 2, 90, 1], ['Automatic fever-free count and doctor sign-off', 'must', 8, 3, 85, 1.5], ['Discharge queue and room cleaning state', 'must', 8, 2, 90, 1],
+    ['Waiting list and admission', 'should', 6, 2, 80, 1], ['Mortality dashboard and 15% alert', 'should', 4, 3, 80, 1.5], ['Audit log', 'should', 4, 1, 90, .5], ['In-app alerts and SLA escalation', 'should', 7, 2, 70, 1],
+    ['Shift handover report', 'could', 6, 1, 70, 1], ['Offline entry and sync', 'could', 7, 2, 60, 3], ['Configurable thresholds and rules', 'could', 3, 1, 70, 1.5],
+    ['SMS or WhatsApp alerts to doctors', 'later', 5, 1, 50, 2], ['Multi-ward and multi-site', 'later', 4, 2, 50, 4], ['Deterioration prediction (data science)', 'later', 6, 3, 30, 6], ['Hospital system integration', 'later', 6, 2, 40, 8]
+  ].map(r => ({n:r[0], tier:r[1], reach:r[2], imp:r[3], conf:r[4], eff:r[5], score:r[2] * r[3] * r[4] / 100 / r[5]}));
+  const rel = {must:'v1 · week 1-2', should:'v1.1 · week 3-4', could:'v2', later:'v3+'};
+  const built = new Set(R.filter(r => r.tier === 'must' || r.tier === 'should').map(r => r.n));
+  const rt = rate(), delays = S.closed.filter(c => c.outcome === 'cured' && c.delay !== null), avg = delays.length ? delays.reduce((s, c) => s + c.delay, 0) / delays.length : 0;
+  const probs = [['Missed and duplicate temperatures', 'No shared status. Fixed by a locked daily reading and a to-do list.'], ['Doctor visits before the temperature exists', 'No dependency between tasks. Fixed by unlocking the visit only after the reading.'], ['Late discharges', 'Hand-counting and manual handoff. Fixed by automatic counting, one-tap sign-off and a discharge queue.'], ['Beds sit idle while people wait', 'Room state is invisible. Fixed by cleaning and free states and a waiting list.'], ['Performance is a blind spot', 'No outcome data. Fixed by closing every case as cured or deceased and calculating mortality live.'], ['Nobody is accountable', 'Paper journal. Fixed by an audit log and role permissions.']];
+  const metrics = [['Complete patient-days', 'Share of active patients with a temperature and then a visit each day', 'Measure in pilot week 0', '95% by week 2'], ['Visits without a temperature', 'Emergency overrides as a share of visits', '0 by design', 'Under 2%'], ['Days kept after eligible', 'Discharge day minus third fever-free day', avg.toFixed(1) + ' in demo data', 'Under 0.5'], ['Discharge to next admission', 'Hours from discharge to the room being re-occupied', 'Measure in pilot', 'Under 24 h'], ['Mortality vs benchmark', 'Deaths over closed cases', (rt.mort * 100).toFixed(1) + '% in demo data', 'At or under 15%'], ['Time to record a temperature', 'Taps and seconds per patient', 'Measure in pilot', 'Under 15 s']];
+  const risks = [['Staff are overloaded and skip the app', 'Three taps per reading, mobile-friendly table, shift-start pilot on one ward first.'], ['Wrong clinical definition of "3 full days"', 'Thresholds are named assumptions. Confirm with the head doctor before build; make configurable in v2.'], ['Typing errors in readings', 'Range checks, jump warnings, same-day correction with a reason.'], ['Connectivity on the ward', 'Offline entry is the first v2 item. Until then, a paper fallback for one shift.'], ['Patient data privacy', 'Role-based access, audit log, retention rules agreed with the centre.']];
+  const rubric = [['Frames the real problem', 'A coordination failure, not a data-entry problem', 'Problem table above'], ['Ruthless prioritisation', 'Clear Must, Should, Could with reasoning and a cut line', 'RICE table and sprint maths (Q4)'], ['Thinks in workflows and permissions', 'Who can do what, in what order, and what is blocked', 'Workflow guide, role matrix, Q3 rules'], ['Edge cases and error states', 'Warnings vs blocks, overrides, overdue states', 'Temperature form, locks, alerts'], ['Measures outcomes', 'Metrics with targets and a way to baseline them', 'Metrics table and Quality screen'], ['A prototype that works', 'Real actions, not static screens', 'Every flow above runs end to end']];
+  return pagehead('Strategy and priorities', 'How I would run this as the product owner: the problems worth solving first, what to build now and later, and how success is measured.') +
+    '<div class="stack"><section class="panel"><h3>The framing</h3><p>The centre does not have a data problem. It has a <b>coordination problem</b>: three people act on the same patient (nurse, doctor, admin) and none can see the others’ progress. That is the same shape as a procure-to-pay approval chain: a request, a dependency, a sign-off, and a hand-off that must not be missed. So the product is a small <b>workflow engine with roles, rules and an audit trail</b>, not a journal with a nicer font.</p></section>' +
+    '<section class="panel"><h3>Problems I would solve, in order</h3><div class="xs"><table class="t"><thead><tr><th>#</th><th>Problem</th><th>Why it happens and the fix</th></tr></thead><tbody>' + probs.map((p, i) => '<tr><td class="mono">' + (i + 1) + '</td><td><b>' + p[0] + '</b></td><td>' + p[1] + '</td></tr>').join('') + '</tbody></table></div></section>' +
+    '<section class="panel"><h3>Prioritisation (RICE, my estimates to validate with the centre)</h3><p class="muted" style="margin:-4px 0 8px">Reach 1-10, Impact 0.25-3, Confidence %, Effort in person-weeks. Score = Reach × Impact × Confidence ÷ Effort.</p><div class="xs"><table class="t"><thead><tr><th>Feature</th><th>Tier</th><th class="c">Reach</th><th class="c">Impact</th><th class="c">Conf.</th><th class="c">Effort</th><th class="c">Score</th><th>Release</th><th class="c">In prototype</th></tr></thead><tbody>' +
+    R.slice().sort((a, b) => b.score - a.score).map(r => '<tr><td>' + r.n + '</td><td><span class="tag ' + r.tier + '">' + r.tier.charAt(0).toUpperCase() + r.tier.slice(1) + '</span></td><td class="c mono">' + r.reach + '</td><td class="c mono">' + r.imp + '</td><td class="c mono">' + r.conf + '%</td><td class="c mono">' + r.eff + '</td><td class="c mono"><b>' + r.score.toFixed(1) + '</b></td><td>' + rel[r.tier] + '</td><td class="c">' + (built.has(r.n) ? '✓' : '') + '</td></tr>').join('') + '</tbody></table></div>' +
+    '<p style="margin-top:10px"><b>Cut line:</b> everything under a score of about 3 waits. Offline entry scores low on RICE but is the first item after launch because a ward with weak signal would stall adoption. Hospital system integration scores lowest: high effort, uncertain demand, and the centre needs value in days.</p></section>' +
+    '<section class="panel"><h3>How I would measure success</h3><div class="xs"><table class="t"><thead><tr><th>Metric</th><th>Definition</th><th>Baseline</th><th>Target</th></tr></thead><tbody>' + metrics.map(m => '<tr><td><b>' + m[0] + '</b></td><td>' + m[1] + '</td><td>' + m[2] + '</td><td>' + m[3] + '</td></tr>').join('') + '</tbody></table></div></section>' +
+    '<div class="grid2"><section class="panel"><h3>Risks and how I would handle them</h3><ul class="rules">' + risks.map(r => '<li><b>' + r[0] + '.</b> ' + r[1] + '</li>').join('') + '</ul></section>' +
+    '<section class="panel"><h3>Questions I would ask the head doctor first</h3><ul class="rules"><li>Is fever 38.0 °C or 37.5 °C? Is "3 full days" 3 calendar days or 72 hours?</li><li>Who may record a death: any doctor, or only the head doctor?</li><li>Can a patient be discharged without a doctor visit that day?</li><li>Is a room reusable immediately after discharge, or does it need a set cleaning time?</li><li>How many nurses and doctors per shift, and do they share devices?</li><li>What happens to a patient who worsens after sign-off?</li></ul></section></div>' +
+    '<section class="panel"><h3>Rollout</h3><ul class="rules"><li><b>Week 0:</b> confirm definitions, load current patients, train one shift.</li><li><b>Week 1-2:</b> pilot on one ward with paper as backup. Track complete patient-days daily.</li><li><b>Week 3-4:</b> add alerts and audit. Review mortality and delay numbers with the head doctor.</li><li><b>Week 5+:</b> offline entry, then configuration, then other wards.</li></ul></section>' +
+    '<section class="panel"><h3>What I would look for in a strong submission, and where this one shows it</h3><div class="xs"><table class="t"><thead><tr><th>Quality</th><th>What good looks like</th><th>Where to see it here</th></tr></thead><tbody>' + rubric.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table></div></section></div>';
+}
+
+/* ---------- spec page (Q1, Q3, Q4) ---------- */
+function specHTML(){
+  const sp = sprintPlan(), F = '●', V = '○', N = '–';
+  const rows = [['Sign in to a role-specific home', F, F, F, F], ['Ward map (all 74 rooms)', F, F, F, F], ['Record or correct today’s temperature', F, N, N, N], ['Temperature chart and history', F, F, F, V], ['Visit queue, locked until temperature recorded', N, F, F, N], ['Log doctor visit and treatment plan', N, F, F, N], ['Approve discharge (3 fever-free days)', N, F, F, N], ['Record a death', N, F, F, N], ['Discharge patient and release room', N, N, N, F], ['Admit patient, waiting list, mark room cleaned', N, N, N, F], ['Compliance (temperatures and visits today)', V, V, F, F], ['Mortality vs 15% benchmark and delays', N, N, F, V], ['Alerts and escalations (scoped to role)', F, F, F, F], ['Audit log', N, N, F, F]];
+  const rules = [['Temperature', ['34.0 to 42.0 °C accepted. Outside the range is blocked with an error.', 'Below 35.0 °C, or 2 °C from yesterday, needs a confirmation tick.', '38.0 °C or above is a fever and resets the count. 39.5 °C or above alerts doctors.', 'One active reading per patient per day. Corrections need a reason and keep the original.']], ['Doctor visit', ['Locked until today’s temperature exists.', 'Emergency override needs a written reason and is flagged in the log.', 'One visit per day. Treatment plan mandatory.']], ['Discharge', ['Eligible = 3 consecutive days with a reading and no fever. A missing day breaks the count.', 'Only a doctor can approve. Admin can discharge only approved patients.', 'A fever on re-check cancels the approval and alerts the doctor.', 'Sign-off or discharge pending over 1 day shows as overdue.']], ['Rooms and quality', ['Discharge or death moves the room to Cleaning. Only admin marks it ready.', 'With no free room, new patients go to the waiting list.', 'Mortality alert fires above 15% once 30 cases are closed.']]];
+  return pagehead('Spec: Q1, Q3, Q4', 'Roles and permissions (Q1), rules developers need beyond the screens (Q3), and the sprint selection (Q4).') +
+    '<div class="stack"><section class="panel"><h3>Q1. Who can do what in version 1</h3><div class="xs"><table class="t"><thead><tr><th>Feature</th><th class="c">Nurse</th><th class="c">Doctor</th><th class="c">Head Doctor</th><th class="c">Admin</th></tr></thead><tbody>' + rows.map(r => '<tr><td>' + r[0] + '</td><td class="c">' + r.slice(1).join('</td><td class="c">') + '</td></tr>').join('') + '</tbody></table></div><p class="muted" style="margin-top:8px;font-size:13px">● full · ○ view only · – none</p></section>' +
+    '<section class="panel"><h3>Q3. Rules enforced in this prototype</h3><div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">' + rules.map(g => '<div><h4>' + g[0] + '</h4><ul class="rules" style="margin-top:6px">' + g[1].map(x => '<li>' + x + '</li>').join('') + '</ul></div>').join('') + '</div></section>' +
+    '<section class="panel"><h3>Q4. Sprint selection</h3><p class="muted" style="margin:-4px 0 8px">Capacity 25 minus 3 × 5 already planned = <b>' + sp.cap + ' points</b>. Value: Low 1, Medium 3, High 6. All 1,024 combinations were checked.</p><div class="xs"><table class="t"><thead><tr><th>Feature</th><th>Priority</th><th class="c">Effort</th><th class="c">Value</th><th class="c">Value per point</th><th class="c">Decision</th></tr></thead><tbody>' + sp.items.map(i => '<tr class="' + (i.pick ? 'sel-row' : '') + '"><td><b>' + i.n + '</b></td><td>' + i.p + '</td><td class="c mono">' + i.e + '</td><td class="c mono">' + i.v + '</td><td class="c mono">' + (i.v / i.e).toFixed(1) + '</td><td class="c">' + (i.pick ? 'Add' : 'Leave out') + '</td></tr>').join('') + '</tbody></table></div><p style="margin-top:10px"><b>Add ' + sp.items.filter(i => i.pick).map(i => i.n).join(', ') + '</b>: effort ' + sp.best.e.toFixed(1) + ' of ' + sp.cap + ', value ' + sp.best.v + '. Sprint total ' + (15 + sp.best.e).toFixed(1) + ' of 25.</p></section></div>';
+}
+
+/* ---------- patient drawer ---------- */
+function chartSVG(p){
+  const days = [], from = Math.max(p.admitDay, S.day - 9); for (let d = from; d <= S.day; d++) days.push(d);
+  const pts = days.map(d => { const a = dayReadings(p, d); return {d, t:a.length ? Math.max(...a.map(r => r.temp)) : null}; });
+  const W = 480, H = 190, L = 34, R = 12, T = 12, B = 26, y0 = 35, y1 = 41;
+  const x = i => days.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (days.length - 1), y = v => T + (1 - (Math.min(y1, Math.max(y0, v)) - y0) / (y1 - y0)) * (H - T - B);
+  const have = pts.map((q, i) => ({...q, i})).filter(q => q.t !== null), path = have.map((q, k) => (k ? 'L' : 'M') + x(q.i).toFixed(1) + ' ' + y(q.t).toFixed(1)).join(' ');
+  return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Daily peak temperature">' + [35, 36, 37, 38, 39, 40, 41].map(v => '<line class="grid" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (L - 5) + '" y="' + (y(v) + 3) + '" text-anchor="end">' + v + '</text>').join('') +
+    '<line class="thr" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(FEVER) + '" y2="' + y(FEVER) + '"/><line class="crt" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(CRIT) + '" y2="' + y(CRIT) + '"/>' + (have.length > 1 ? '<path class="ln" d="' + path + '"/>' : '') +
+    have.map(q => '<circle class="dot ' + (q.t >= CRIT ? 'c' : q.t >= FEVER ? 'f' : '') + '" cx="' + x(q.i) + '" cy="' + y(q.t) + '" r="4.5"><title>' + fmtDate(q.d) + ': ' + f1(q.t) + ' °C</title></circle>').join('') +
+    pts.map((q, i) => (i % Math.ceil(pts.length / 6) === 0 || i === pts.length - 1) ? '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="middle">' + fmtDate(q.d) + '</text>' : '').join('') + '</svg>';
+}
+function wfHTML(p){
+  const tr = todayReading(p), vt = visitToday(p), sk = streak(p);
+  const s1 = tr ? 'done' : 'now', s2 = vt ? 'done' : tr ? 'now' : 'lock', s3 = p.status === 'approved' ? 'done' : eligible(p) ? 'now' : 'lock';
+  return '<div class="wf"><div class="' + s1 + '"><small>1 · Nurse</small><b>' + (tr ? f1(tr.temp) + ' °C at ' + tr.time : 'Temperature due') + '</b></div><div class="' + s2 + '"><small>2 · Doctor</small><b>' + (vt ? 'Visited ' + vt.time : tr ? 'Ready for visit' : 'Locked') + '</b></div><div class="' + s3 + '"><small>3 · Discharge</small><b>' + (p.status === 'approved' ? 'Approved' : eligible(p) ? 'Needs sign-off' : Math.min(sk, NEED) + ' of ' + NEED + ' fever-free') + '</b></div></div>';
+}
+function drawerHTML(p){
+  const st = pstate(p), sk = streak(p), tr = todayReading(p), vt = visitToday(p), role = UI.role;
+  const items = []; p.readings.forEach(r => items.push({d:r.day, t:r.time, k:'t', r})); p.visits.forEach(v => items.push({d:v.day, t:v.time, k:'v', v})); items.sort((a, b) => b.d - a.d || b.t.localeCompare(a.t));
+  let actions = '';
+  if (role === 'nurse' && p.status === 'active') actions = tr ? '<div class="fb info">Today’s reading is locked: ' + f1(tr.temp) + ' °C by ' + esc(tr.by) + ' at ' + tr.time + '.</div><button class="btn" data-act="temp" data-id="' + p.id + '" data-c="1">Correct reading</button>' : '<button class="btn pri" data-act="temp" data-id="' + p.id + '">Record temperature</button>';
+  if (role === 'nurse' && p.status === 'approved') actions = '<div class="fb info">Cleared for discharge. A re-check is optional. A fever cancels the approval.</div><button class="btn" data-act="temp" data-id="' + p.id + '" ' + (tr ? 'data-c="1"' : '') + '>' + (tr ? 'Correct re-check' : 'Record re-check') + '</button>';
+  if ((role === 'doctor' || role === 'head') && p.status === 'active') {
+    const noTemp = !tr, d = UI.draft;
+    if (vt) actions += '<div class="fb ok">Visit logged at ' + vt.time + ' by ' + esc(vt.by) + '. ' + esc(vt.treatment) + '.</div>';
+    else actions += '<div class="panel"><h3>Log today’s visit</h3>' + (noTemp ? '<div class="fb warn">Temperature not recorded yet. The nurse needs to record it first. In an emergency you can override below.</div>' : '') +
+      '<div class="field"><label for="d-tr">Treatment plan</label><select id="d-tr" data-draft="treatment" ' + (noTemp && !d.emergency ? 'disabled' : '') + '>' + TREATMENTS.map(t => '<option ' + (d.treatment === t ? 'selected' : '') + '>' + t + '</option>').join('') + '</select></div>' +
+      '<div class="field"><label for="d-note">Clinical note' + (noTemp ? ' (required for emergency)' : '') + '</label><textarea id="d-note" data-draft="note" ' + (noTemp && !d.emergency ? 'disabled' : '') + '>' + esc(d.note || '') + '</textarea></div>' + (noTemp ? '<label class="check"><input type="checkbox" id="d-em" data-draftc="emergency" ' + (d.emergency ? 'checked' : '') + '> Emergency visit without a recorded temperature</label>' : '') +
+      '<div class="actions" style="margin-top:6px"><button class="btn pri" data-act="visit" data-id="' + p.id + '" ' + (noTemp && !d.emergency ? 'disabled' : '') + '>Log visit</button></div></div>';
+    if (eligible(p)) actions += '<div class="fb ok"><b>' + sk + ' fever-free days.</b> Meets the discharge rule.</div><button class="btn pri" data-act="approve" data-id="' + p.id + '">Approve discharge</button>';
+    actions += '<button class="btn sm" style="align-self:flex-start;color:var(--crit)" data-act="death" data-id="' + p.id + '">Record death</button>';
+  }
+  if (role === 'admin' && p.status === 'approved') actions = '<button class="btn pri" data-act="discharge" data-id="' + p.id + '">Discharge patient</button>';
+  if (p.status === 'approved' && role !== 'admin' && role !== 'nurse') actions += '<div class="fb info">Cleared for discharge. Waiting on admin.</div>';
+  return '<div class="dhead"><span class="room">R' + p.room + '</span><div><h2>' + esc(p.name) + '</h2><small>' + p.age + p.sex + ' · Day ' + dayIn(p) + ' · admitted ' + fmtDate(p.admitDay) + '</small></div><button class="btn sm xbtn" data-act="closeDrawer">Close</button></div>' +
+    '<div>' + pill(st.k, st.label) + '</div>' + wfHTML(p) +
+    '<div class="panel"><h3>Fever-free days ' + pips(sk) + ' <small class="mono">' + Math.min(sk, NEED) + ' / ' + NEED + '</small></h3>' + chartSVG(p) + '<p class="muted" style="margin-top:6px;font-size:12.5px">Daily peak. Dashed: fever at ' + f1(FEVER) + ' °C. Dotted: high fever at ' + f1(CRIT) + ' °C.</p></div>' +
+    (actions ? '<div style="display:flex;flex-direction:column;gap:10px">' + actions + '</div>' : '') +
+    '<div class="panel"><h3>Timeline</h3>' + (items.length ? items.map(i => i.k === 't' ? '<div class="tl-i ' + (i.r.voided ? 'void' : '') + '"><time>' + fmtDate(i.d) + ' ' + i.t + '</time><span><b class="mono">' + f1(i.r.temp) + ' °C</b> recorded by ' + esc(i.r.by) + (i.r.voided ? ' (voided: ' + esc(i.r.voidReason) + ')' : '') + '</span></div>' : '<div class="tl-i"><time>' + fmtDate(i.d) + ' ' + i.t + '</time><span><b>Visit</b> · ' + esc(i.v.by) + '<br>' + esc(i.v.treatment) + (i.v.note ? '. ' + esc(i.v.note) : '') + '</span></div>').join('') : '<div class="empty">Nothing recorded yet.</div>') + '</div>';
+}
+
+/* ---------- overlays ---------- */
+let MODAL = null;
+function renderOverlay(){
+  const o = document.getElementById('overlay');
+  document.body.classList.toggle('drawer-open', !!(UI.drawer && byId(UI.drawer)));
+  if (MODAL) return;
+  if (UI.drawer && byId(UI.drawer)) o.innerHTML = '<div class="scrim" data-act="scrim"><aside class="drawer" role="dialog" aria-label="Patient detail">' + drawerHTML(byId(UI.drawer)) + '</aside></div>';
+  else o.innerHTML = '';
+}
+function openModal(html, onReady){
+  MODAL = true;
+  document.getElementById('overlay').innerHTML = '<div class="scrim center" data-act="scrim"><div class="modal" role="dialog" aria-modal="true">' + html + '</div></div>';
+  if (onReady) onReady();
+  const f = document.querySelector('.modal input, .modal select, .modal textarea'); if (f) f.focus();
+}
+function closeModal(){ MODAL = null; renderOverlay(); }
+function openPatient(id){
+  UI.drawer = id; UI.draft = {}; const p = byId(id);
+  if ((UI.role === 'doctor' || UI.role === 'head') && p && p.status === 'active' && todayTemp(p) === null) emit('openLocked');
+  renderOverlay();
+}
+function tempModal(pid, correcting){
+  const p = byId(pid);
+  if (!allowed('recordTemp')) return toast('Only nurses can record temperatures.', 'warn');
+  const ex = todayReading(p);
+  if (ex && !correcting) return toast('Already recorded today by ' + ex.by + ' at ' + ex.time + '.', 'warn');
+  emit('openTemp');
+  openModal('<h3>' + (correcting ? 'Correct reading' : 'Record temperature') + '</h3><p class="muted">Room ' + p.room + ' · ' + esc(p.name) + ' · ' + fmtDate(S.day, {weekday:'short', day:'numeric', month:'short'}) + '</p>' +
+    (correcting ? '<div class="fb info">Current reading: ' + f1(ex.temp) + ' °C by ' + esc(ex.by) + ' at ' + ex.time + '. The original is kept in the audit trail.</div>' : '') +
+    '<div class="field"><label for="tv">Temperature (°C)</label><input id="tv" class="tin" inputmode="decimal" autocomplete="off" placeholder="37.0"><small id="tf" class="mono"></small></div><div id="tmsg"></div><div id="tconf"></div>' +
+    (correcting ? '<div class="field"><label for="tr">Reason for correction</label><select id="tr"><option value="">Choose a reason</option><option>Typing error</option><option>Entered for wrong patient</option><option>Re-measured, first reading unreliable</option></select></div>' : '') +
+    '<div class="field"><label for="tn">Note (optional)</label><input id="tn" maxlength="140" placeholder="For example: measured after bath"></div><div class="actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn pri" id="tsave" disabled>Save reading</button></div>', () => {
+    const tv = document.getElementById('tv'), msg = document.getElementById('tmsg'), conf = document.getElementById('tconf'), save = document.getElementById('tsave'), tf = document.getElementById('tf');
+    let cur = null;
+    const gate = () => { const c = document.getElementById('tc'), r = document.getElementById('tr'); save.disabled = cur.block || (cur.confirm && !(c && c.checked)) || (correcting && !(r && r.value)); };
+    const upd = () => {
+      cur = checkTemp(p, tv.value, correcting);
+      msg.innerHTML = '<div class="fb ' + (cur.lvl === 'err' ? 'err' : cur.lvl) + '">' + esc(cur.msg) + '</div>';
+      tf.textContent = cur.t !== undefined ? '= ' + toF(cur.t).toFixed(1) + ' °F' : '';
+      if (cur.lvl === 'err' && cur.block) emit('rangeErr');
+      conf.innerHTML = cur.confirm ? '<label class="check"><input type="checkbox" id="tc"> ' + esc(cur.confirm) + '</label>' : '';
+      const c = document.getElementById('tc'); if (c) c.addEventListener('change', gate);
+      gate();
+    };
+    tv.addEventListener('input', upd);
+    if (correcting) document.getElementById('tr').addEventListener('change', gate);
+    tv.addEventListener('keydown', e => { if (e.key === 'Enter' && !save.disabled) save.click(); });
+    save.addEventListener('click', () => {
+      const c = document.getElementById('tc'), r = document.getElementById('tr');
+      const res = recordTemp(pid, tv.value, {correcting, reason:r ? r.value : '', confirmed:c ? c.checked : false, note:document.getElementById('tn').value});
+      if (!res.ok) return toast(res.msg, 'warn');
+      closeModal(); toast(res.msg, res.level); render();
+    });
+    upd();
+  });
+}
+function confirmModal(title, body, label, danger, fn, withNote){
+  openModal('<h3>' + title + '</h3><p style="margin-top:6px">' + body + '</p>' + (withNote ? '<div class="field"><label for="cn">Clinical note (required)</label><textarea id="cn" placeholder="Cause and circumstances"></textarea></div>' : '') + '<div class="actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn ' + (danger ? 'dng' : 'pri') + '" id="cok">' + label + '</button></div>', () => {
+    document.getElementById('cok').addEventListener('click', () => { const n = document.getElementById('cn'), res = fn(n ? n.value : ''); if (!res.ok) return toast(res.msg, 'warn'); closeModal(); UI.drawer = null; toast(res.msg, res.level); render(); });
+  });
+}
+function admitModal(w){
+  const fr = freeRooms();
+  openModal('<h3>' + (w ? 'Admit from waiting list' : 'Register patient') + '</h3><p class="muted">' + (fr.length ? fr.length + ' room(s) free.' : 'All rooms are full. New patients go to the waiting list.') + '</p>' +
+    '<div class="field"><label for="an">Full name</label><input id="an" value="' + (w ? esc(w.name) : '') + '" autocomplete="off"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="field"><label for="aa">Age</label><input id="aa" inputmode="numeric" value="' + (w ? w.age : '') + '"></div><div class="field"><label for="as">Sex</label><select id="as"><option ' + (w && w.sex === 'F' ? 'selected' : '') + '>F</option><option ' + (w && w.sex === 'M' ? 'selected' : '') + '>M</option></select></div></div>' +
+    '<div class="field"><label for="ar">Room</label><select id="ar">' + fr.map(n => '<option value="' + n + '">Room ' + n + '</option>').join('') + '<option value="wait" ' + (fr.length ? '' : 'selected') + '>Add to waiting list</option></select></div><div class="actions"><button class="btn" data-act="closeModal">Cancel</button><button class="btn pri" id="aok">Confirm</button></div>', () => {
+    document.getElementById('aok').addEventListener('click', () => { const res = admit({name:document.getElementById('an').value, age:document.getElementById('aa').value, sex:document.getElementById('as').value, room:document.getElementById('ar').value, waitId:w ? w.id : null}); if (!res.ok) return toast(res.msg, 'warn'); closeModal(); toast(res.msg); render(); });
+  });
+}
+function demoModal(){
+  openModal('<h3>Demo controls</h3><p class="muted">For reviewers only. These would not exist in production.</p><div class="field"><label>Move the clock</label><button class="btn" data-act="nextday">Start next day (' + fmtDate(S.day + 1, {weekday:'short', day:'numeric', month:'short'}) + ')</button><small>Resets today’s temperature and visit status, keeps history, and logs how many readings were missed.</small></div><div class="field"><label>Reset</label><button class="btn" data-act="reset">Reset all demo data</button></div><div class="actions"><button class="btn" data-act="closeModal">Close</button></div>');
+}
+
+/* ---------- events ---------- */
+function doAction(a, el){
+  const id = el.dataset.id;
+  switch (a) {
+    case 'login': UI.role = el.dataset.r; UI.view = null; UI.filter = 'due'; UI.q = ''; UI.drawer = null; logEvent('Signed in', UI.role); render(); window.scrollTo(0, 0); break;
+    case 'explore': UI.role = 'head'; UI.view = 'guide'; render(); break;
+    case 'logout': UI.role = null; UI.drawer = null; MODAL = null; UI.bell = false; render(); break;
+    case 'view': UI.view = el.dataset.v; UI.drawer = null; UI.bell = false; render(); window.scrollTo(0, 0); break;
+    case 'go': doGo({role:el.dataset.role, view:el.dataset.v}); break;
+    case 'filter': UI.filter = el.dataset.f; render(); break;
+    case 'auditf': UI.auditF = el.dataset.f; render(); break;
+    case 'gsel': UI.gf = el.dataset.f; render(); break;
+    case 'startfeat': startFeat(el.dataset.f); break;
+    case 'step': { const f = feat(el.dataset.f), s = f.steps[parseInt(el.dataset.i, 10)]; doGo(s.go ? s.go() : {role:s.a, view:UI.role === s.a ? UI.view : NAVDEF[s.a][0][0]}); break; }
+    case 'dockmin': GUIDE.min = !GUIDE.min; renderDock(); break;
+    case 'dockoff': GUIDE.on = false; renderDock(); break;
+    case 'bell': UI.bell = !UI.bell; if (UI.bell) emit('bell'); render(); break;
+    case 'alertgo': { const a2 = alerts()[parseInt(el.dataset.i, 10)]; UI.bell = false; emit('alertGo'); if (a2.pid) { render(); openPatient(a2.pid); } else doGo({view:a2.view && (NAVDEF[UI.role].some(n => n[0] === a2.view)) ? a2.view : NAVDEF[UI.role][0][0]}); break; }
+    case 'temp': tempModal(id, !!el.dataset.c); break;
+    case 'visit': { const res = logVisit(id, {treatment:UI.draft.treatment || TREATMENTS[0], note:UI.draft.note || '', emergency:!!UI.draft.emergency}); if (!res.ok) return toast(res.msg, 'warn'); UI.draft = {}; toast(res.msg); render(); break; }
+    case 'approve': { const res = approveDischarge(id); if (!res.ok) return toast(res.msg, 'warn'); toast(res.msg); render(); break; }
+    case 'death': confirmModal('Record death', 'This closes the case for Room ' + byId(id).room + ', ' + esc(byId(id).name) + ', counts toward the mortality rate and cannot be undone.', 'Record death', true, note => recordDeath(id, note), true); break;
+    case 'discharge': { const p = byId(id); confirmModal('Discharge ' + esc(p.name) + '?', 'Room ' + p.room + ' moves to cleaning and is freed once marked ready.', 'Discharge', false, () => dischargePatient(id)); break; }
+    case 'clean': { const res = markClean(parseInt(el.dataset.n, 10)); toast(res.msg); render(); break; }
+    case 'register': admitModal(null); break;
+    case 'admitWait': admitModal(S.waiting.find(w => w.id === id)); break;
+    case 'demo': demoModal(); break;
+    case 'nextday': { const res = advanceDay(); closeModal(); toast(res.msg); render(); break; }
+    case 'reset': S = seedState(); GUIDE.done = new Set(); UI.drawer = null; closeModal(); toast('Demo data reset.'); render(); break;
+    case 'closeModal': closeModal(); break;
+    case 'closeDrawer': UI.drawer = null; UI.draft = {}; renderOverlay(); break;
+  }
+}
+function initUI(){
+  document.addEventListener('click', e => {
+    const a = e.target.closest('[data-act]');
+    if (a && a.dataset.act === 'scrim') { if (e.target === a) { if (MODAL) closeModal(); else { UI.drawer = null; renderOverlay(); } } return; }
+    if (UI.bell && !e.target.closest('.pop') && !(a && a.dataset.act === 'bell')) { UI.bell = false; render(); }
+    if (a) return doAction(a.dataset.act, a);
+    const o = e.target.closest('[data-open]');
+    if (o) { const g = document.getElementById('gsr'); if (g) g.innerHTML = ''; openPatient(o.dataset.open); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (MODAL) closeModal(); else if (UI.drawer) { UI.drawer = null; renderOverlay(); } else if (UI.bell) { UI.bell = false; render(); } }
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.mini')) { e.preventDefault(); openPatient(e.target.dataset.open); }
+  });
+  document.addEventListener('input', e => {
+    if (e.target.id === 'q') { UI.q = e.target.value; render(); }
+    if (e.target.id === 'gs') {
+      const v = e.target.value.trim().toLowerCase(), box = document.getElementById('gsr');
+      if (!v) { box.innerHTML = ''; return; }
+      const m = S.patients.filter(p => live(p) && (p.name.toLowerCase().includes(v) || String(p.room) === v.replace(/^r(oom)?\s*/, ''))).slice(0, 6);
+      box.innerHTML = '<div class="gsr">' + (m.length ? m.map(p => '<button data-open="' + p.id + '"><span class="room">R' + p.room + '</span><span><b>' + esc(p.name) + '</b><br><small>' + pstate(p).label + '</small></span></button>').join('') : '<div class="empty">No match</div>') + '</div>';
+    }
+    if (e.target.dataset && e.target.dataset.draft) UI.draft[e.target.dataset.draft] = e.target.value;
+  });
+  document.addEventListener('change', e => {
+    if (e.target.id === 'sort') { UI.sort = e.target.value; render(); }
+    if (e.target.id === 'rolesel') { UI.role = e.target.value; UI.view = null; UI.drawer = null; UI.q = ''; UI.filter = 'due'; render(); }
+    if (e.target.dataset && e.target.dataset.draftc) { UI.draft[e.target.dataset.draftc] = e.target.checked; renderOverlay(); }
+  });
+}
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined') { S = seedState(); initUI(); render(); }
+if (typeof module !== 'undefined') module.exports = {seedState, setS:s => { S = s; }, setRole:r => { UI.role = r; }, getS:() => S, recordTemp, logVisit, approveDischarge, recordDeath, dischargePatient, markClean, admit, advanceDay, sprintPlan, checkTemp, streak, eligible, todayTemp, visitToday, rate, freeRooms, pstate, patientInRoom, byId, alerts, eligSince, GUIDE, FEATS};
+</script>
+</body>
+</html>
